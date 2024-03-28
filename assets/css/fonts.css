@@ -1,0 +1,13 @@
+@font-face {
+  font-family: 'smiley-sans';
+  src: url('../font/smiley-sans-oblique.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'calibri';
+  src: url('../font/calibri.ttf') format('truetype')
+}
+
+@font-face {
+  font-family: 'times-new-roman';
+  src: url('../font/times.ttf') format('truetype')
+}

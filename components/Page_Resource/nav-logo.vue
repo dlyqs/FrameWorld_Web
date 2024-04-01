@@ -7,10 +7,6 @@
   </div>
 </template>
 
-<script>
-
-</script>
-
 <style>
 .nav-logo__svg {
   width: 10rem; /* Logo尺寸，根据需要自行调整 */
@@ -20,9 +16,7 @@
   opacity: 0.7; /* 透明度可以根据需求调整 */
   transition: transform 0.3s ease-in-out, fill 0.3s; /* 优化动画时长 */
 }
-
 .nav-logo__svg:hover {
   transform: rotate(720deg); /* 轻微的旋转动效 */
 }
-
 </style>

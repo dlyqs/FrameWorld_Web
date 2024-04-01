@@ -1,21 +1,25 @@
+<template>
+  <v-card rounded="lg" >
+    <div ref="contentElm" v-html="contentHtml" class="chat-msg-content pa-3"></div>
+  </v-card>
+</template>
+
 <script setup>
 import MarkdownIt from 'markdown-it';
 import copy from 'copy-to-clipboard';
-import mathjax3 from 'markdown-it-mathjax3';
-
-// 初始化Markdown解析器，并添加MathJax支持
-const md = new MarkdownIt({ linkify: true }).use(mathjax3);
 
 const props = defineProps({
-  message: Object,
-  index: Number,
-  usePrompt: Function,
-  deleteMessage: Function,
+  message: Object, // 消息对象，包含要显示的文本等信息
+  index: Number, // 消息索引，可用于优化渲染或定位
+  usePrompt: Function, // 用于重用消息内容的函数
+  deleteMessage: Function, // 删除消息的函数
 });
 
-const contentHtml = ref('');
+// 初始化Markdown解析器，若需要添加插件则引入后.use来添加支持
+const md = new MarkdownIt({ linkify: true })
 
 // 创建响应式引用，用于绑定DOM元素
+const contentHtml = ref('');
 const contentElm = ref(null);
 
 // 使用watchEffect监听props.message的变化，并更新渲染的HTML内容
@@ -27,26 +31,15 @@ watchEffect(async () => {
 
 // 绑定复制按钮的事件
 const bindCopyCodeToButtons = () => {
-  const codeContainers = contentElm.value?.querySelectorAll('.hljs-code-container') ?? [];
-  codeContainers.forEach((codeContainer) => {
-    const copyButton = codeContainer.querySelector('.hljs-copy-button');
-    const codeBody = codeContainer.querySelector('code');
-    copyButton.onclick = () => {
-      copy(codeBody.textContent ?? '');
-      copyButton.textContent = "Copied!";
-      setTimeout(() => copyButton.textContent = "Copy", 2000);
-    };
-  });
+  if(contentElm.value) {
+    contentElm.value.onclick = () => {
+      copy(props.message.message);
+    }
+  }
 };
 
 onMounted(bindCopyCodeToButtons);
 </script>
-
-<template>
-  <v-card rounded="lg" :class="{ 'card_disabled': message.is_disabled } ">
-    <div ref="contentElm" v-html="contentHtml" class="chat-msg-content pa-3"></div>
-  </v-card>
-</template>
 
 <style>
 .chat-msg-content {
@@ -54,7 +47,6 @@ onMounted(bindCopyCodeToButtons);
   font-weight: 600;
   line-height: 2rem;
 }
-
 .chat-msg-content table {
   width: 100%;
   border-collapse: collapse;

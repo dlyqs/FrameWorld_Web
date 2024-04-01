@@ -2,19 +2,15 @@
   <div class="vue-app">
     <header class="app-header">
       <div class="logo-wrapper">
-        <!-- Logo 组件 -->
         <nav-logo />
       </div>
       <div>
-        <!-- Search 组件 -->
         <nav-search />
       </div>
     </header>
     <div class="favorites-wrapper">
-      <!-- Favorites 组件 -->
       <nav-favorite />
     </div>
-    <!-- Footer 组件 -->
     <nav-foot />
   </div>
 </template>
@@ -24,6 +20,25 @@ import NavLogo from './nav-logo.vue'
 import NavSearch from './nav-search.vue'
 import NavFavorite from './nav-favorite.vue'
 import NavFoot from './nav-foot.vue'
+
+/*————————————————————————对话加载及路由跳转————————————————————————*/
+const router = useRouter();
+async function fetchSourcePage(id) {
+  const { data, error } = await useAuthFetch(`/api/chat/conversations/${id}`);
+  if (!error.value && data.value.source_page) { return data.value.source_page; }
+  return null;
+}
+
+onBeforeRouteUpdate(async (to, from, next) => {
+  if (to.params.id && to.params.id !== from.params.id) {
+    const sourcePage = await fetchSourcePage(to.params.id);
+    if (sourcePage) {
+      await router.replace({path: '/', hash: `${sourcePage}`});
+      await router.replace({ path:`/${to.params.id}`});
+    }
+  }
+  next();
+});
 </script>
 
 <style>
@@ -32,17 +47,14 @@ import NavFoot from './nav-foot.vue'
   display: flex;
   flex-direction: column;
 }
-
 .app-header {
   background-color: white;
 }
-
 .logo-wrapper{
   display: flex;
   justify-content: center;
   margin-top: 3rem;
 }
-
 .favorites-wrapper {
   flex-grow: 1;
   background-color: #eaf4f4;

@@ -39,6 +39,7 @@
 </template>
 
 <script setup>
+const router = useRouter();
 definePageMeta({
   layout: 'vuetify-app'
 })
@@ -76,10 +77,8 @@ const submit = async () => {
       }
     } else {
       setUser(data.value.user)
-      const callback = route.query.callback ? decodeURIComponent(route.query.callback) : '/'
-      await navigateTo(callback)
+      router.replace({ path: '/', hash: 'welcome' });
     }
   }
 }
-
 </script>

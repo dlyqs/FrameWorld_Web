@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <NavigationDrawer />
+    <NavDrawer/>
     <slot />
   </v-app>
 </template>

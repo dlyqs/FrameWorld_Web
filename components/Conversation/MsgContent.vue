@@ -1,6 +1,6 @@
 <template>
   <v-card rounded="lg" >
-    <div ref="contentElm" v-html="contentHtml" class="chat-msg-content pa-3"></div>
+    <div ref="contentElm" v-html="contentHtml" class="chat-msg-content pa-5"></div>
   </v-card>
 </template>
 
@@ -41,7 +41,7 @@ const bindCopyCodeToButtons = () => {
 onMounted(bindCopyCodeToButtons);
 </script>
 
-<style>
+<style scoped>
 .chat-msg-content {
   font-size: 1rem !important;
   font-weight: 600;

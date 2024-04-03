@@ -1,4 +1,3 @@
-// @ts-ignore
 export default defineNuxtRouteMiddleware(async (to, from) => {
     const user = useUser()
     const signInPath = '/account/signin'

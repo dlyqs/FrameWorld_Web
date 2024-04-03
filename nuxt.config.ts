@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             appName: appName,
+            customApiKey: false
         }
     },
     // 构建配置

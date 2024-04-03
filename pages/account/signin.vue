@@ -44,8 +44,8 @@ definePageMeta({
   layout: 'vuetify-app'
 })
 const formData = ref({
-  username: '',
-  password: ''
+  username: 'lyq',
+  password: 'root'
 })
 const formRules = ref({
   username: [v => !!v || '用户名是必填项'],

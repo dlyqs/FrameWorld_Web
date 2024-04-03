@@ -1,4 +1,5 @@
 // 管理和返回API密钥的状态。
+export const useCurrentModel = () => useState('currentModel', () => getCurrentModel())
 export const useApiKey = () => useState('apiKey', () => getStoredApiKey())
 // 管理用户会话列表的状态。
 export const useConversations = () => useState('conversations', () => [])

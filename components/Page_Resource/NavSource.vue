@@ -41,7 +41,7 @@ onBeforeRouteUpdate(async (to, from, next) => {
 });
 </script>
 
-<style>
+<style scoped>
 .vue-app {
   min-height: 100vh;
   display: flex;

@@ -63,7 +63,7 @@
           <!-- 对话信息及编辑删除按钮 -->
           <v-hover v-if="!editingConversation || editingConversation.id !== conversation.id" v-slot="{ isHovering, props }">
             <v-list-item :to="`/${conversation.id}`" v-bind="props" class="conversation_list">
-              <v-list-item-title>{{ (conversation.topic && conversation.topic !== '') ? conversation.topic : '未命名对话' }}</v-list-item-title>
+              <v-list-item-title>{{ conversation.topic }}</v-list-item-title>
               <template v-slot:append>
                 <div v-show="isHovering && conversation.id">
                   <v-btn class="btn_edit" icon="edit" size="small" variant="text" @click.prevent="editConversation(cIdx)"></v-btn>

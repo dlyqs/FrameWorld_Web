@@ -7,7 +7,7 @@
         <div class='nav-links nav_1' @mouseover="hoverIn" @mouseout="hoverOut" @click="changeView('idea')">构思</div>
         <div class='nav-links nav_2' @mouseover="hoverIn" @mouseout="hoverOut" @click="changeView('source')">素材</div>
         <div class='nav-links nav_3' @mouseover="hoverIn" @mouseout="hoverOut" @click="changeView('description')">文案</div>
-        <a href="http://localhost:5173/" target="_blank" class='nav-links nav_4' @mouseover="hoverIn" @mouseout="hoverOut">帧世界</a>
+        <router-link to="/Page_FrameWorld/Home" target="_blank" class='nav-links nav_4' @mouseover="hoverIn" @mouseout="hoverOut">帧世界</router-link>
       </div>
     </v-col>
   </v-app-bar>
@@ -30,7 +30,6 @@ definePageMeta({
 
 const route = useRoute();
 const router = useRouter();
-const drawer = useDrawer();
 const currentComponent = ref('Welcome'); // 默认显示的组件
 
 // 组件别名映射，简化跳转逻辑

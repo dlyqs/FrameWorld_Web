@@ -7,7 +7,7 @@
   </div>
 </template>
 
-<style>
+<style scoped>
 .nav-logo__svg {
   width: 10rem; /* Logo尺寸，根据需要自行调整 */
   display: block;

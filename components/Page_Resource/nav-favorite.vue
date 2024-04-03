@@ -49,7 +49,7 @@ const groupedSites = computed(() => {
 });
 </script>
 
-<style>
+<style scoped>
 .favorites {
   background: #eaf4f4; /* 浅黄色背景 */
   margin-left: 9.5rem;

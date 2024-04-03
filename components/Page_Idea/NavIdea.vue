@@ -25,10 +25,10 @@
       <!-- 视频类型和发布平台下拉框 -->
       <v-row class="row-style">
         <v-col cols="4" class="column-style">
-          <v-select v-model="selectedType" :items="videoTypes" label="选择视频类型" solo class="select-style"></v-select>
+          <v-select v-model="selectedType" :items="videoTypes" label="选择视频类型" solo hide-details class="select-style"></v-select>
         </v-col>
         <v-col cols="4" class="column-style">
-          <v-select v-model="selectedPlatform" :items="platforms" label="选择视频发布平台" solo class="select-style"></v-select>
+          <v-select v-model="selectedPlatform" :items="platforms" label="选择视频发布平台" solo hide-details class="select-style"></v-select>
         </v-col>
       </v-row>
 
@@ -49,7 +49,7 @@
       <!-- 参考的创作者输入框 -->
       <v-row class="row-style">
         <v-col cols="8">
-          <v-text-field v-model="creativeConcept" label="参考创作者" placeholder="空间网址/UID/精确昵称" solo class="input-style"></v-text-field>
+          <v-text-field v-model="creativeConcept" label="参考创作者" placeholder="空间网址/UID/精确昵称" solo hide-details class="input-style"></v-text-field>
         </v-col>
       </v-row>
 
@@ -125,8 +125,10 @@ const videoTypes = ref(['短视频', '中视频', '长视频', '短剧'])
 const selectedPlatform = ref(null)
 const platforms = ref(['全平台', 'b站', 'YouTube', '抖音', 'TikTok'])
 
-// 创意程度
+// 视频参考
 const creativeConcept = ref('')
+
+// 创意程度
 const creativityLevel = ref(50); // 初始化为50，代表"normal creativity"
 const computedCreativityLevel = computed(() => {
   if (creativityLevel.value <= 40) {
@@ -214,7 +216,7 @@ onBeforeRouteUpdate(async (to, from, next) => {
 });
 </script>
 
-<style>
+<style scoped>
 .content-wrapper {
   max-width: 700px;
   margin: 20px auto;
@@ -294,17 +296,14 @@ onBeforeRouteUpdate(async (to, from, next) => {
 }
 
 /* 下拉框、输入框、文本框的基础样式 */
-.select-style, .input-style, .textarea-style {
+.select-style, .input-style {
   width: 100%; /* 宽度填满父容器 */
   border-radius: 4px; /* 圆角边框 */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), /* 阴影效果 */
                0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out; /* 动效 */
-  border-bottom: none;
 }
-.v-input__details {
-  display: none;
-}
+
 /* 鼠标悬停时的动效和阴影变化 */
 .select-style:hover, .input-style:hover, .textarea-style:hover {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),

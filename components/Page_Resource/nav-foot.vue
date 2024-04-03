@@ -4,7 +4,7 @@
   </footer>
 </template>
 
-<style>
+<style scoped>
 .nav-foot {
   padding: 1rem;
   background-color: #f8f9fa; /* 浅灰色背景 */

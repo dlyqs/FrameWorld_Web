@@ -77,6 +77,7 @@ const submit = async () => {
       }
     } else {
       setUser(data.value.user)
+      setUserStorage(data.value.user)
       router.replace({ path: '/', hash: 'welcome' });
     }
   }

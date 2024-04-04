@@ -12,6 +12,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
             })
         } else {
             setUser(data.value)
+            setUserStorage(data.value)
         }
     }
 })

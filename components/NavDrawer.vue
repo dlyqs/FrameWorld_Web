@@ -20,8 +20,8 @@
             </v-avatar>
           </v-col>
           <v-col cols="8">
-            <div class="text-name">{{ user.username }}</div>
-            <div class="text-caption">{{ user.email }}</div>
+            <div class="text-name">{{ user?.username }}</div>
+            <div class="text-caption">{{ user?.email }}</div>
           </v-col>
         </v-row>
       </v-card>
@@ -62,7 +62,7 @@
           </v-list-item>
           <!-- 对话信息及编辑删除按钮 -->
           <v-hover v-if="!editingConversation || editingConversation.id !== conversation.id" v-slot="{ isHovering, props }">
-            <v-list-item :to="`/${conversation.id}`" v-bind="props" class="conversation_list">
+            <v-list-item @click="selectConversation(conversation.id, conversation.source_page)" v-bind="props" class="conversation_list">
               <v-list-item-title>{{ conversation.topic }}</v-list-item-title>
               <template v-slot:append>
                 <div v-show="isHovering && conversation.id">
@@ -204,6 +204,14 @@ const loadConversations = async () => {
 onNuxtReady(() => {
   loadConversations()
 })
+
+const router = useRouter();
+
+function selectConversation(conversationId, sourcePage) {
+  if (sourcePage && conversationId){
+    router.push({ path: `/${sourcePage}`, query: { conversationId } });
+  }
+}
 </script>
 
 <style scoped>

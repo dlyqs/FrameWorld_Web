@@ -173,11 +173,11 @@ const onGenerateClick = async () => {
   if (conversationComponent.value) {
     conversationComponent.value.clearMessages();  // 清空当前消息
     conversationComponent.value.triggerSend();    // 触发MsgEditor发送操作
-    router.push({ path: `/${currentConversationId.value}`});
   }
 };
 
 /*————————————————————————对话加载及路由跳转————————————————————————*/
+const route = useRoute();
 const router = useRouter();
 const conversation = ref(getDefaultConversationData());
 
@@ -197,23 +197,34 @@ async function loadMessage(id) {
   }
 }
 
-// 使用Vue Router的beforeRouteUpdate守卫
-onBeforeRouteUpdate(async (to, from, next) => {
-  if (to.params.id !== from.params.id) {
-    conversation.value.loadingMessages = true;
-    const source_page = await loadConversation(to.params.id)
-    if (source_page === sourcePage){
-      await loadMessage(to.params.id);
-      conversation.value.loadingMessages = false;
-      await router.replace({path: '/', hash: `${sourcePage}`});
-    }
-    else {
-      await router.replace({path: '/', hash: `${source_page}`});
-      await router.replace({ path:`/${to.params.id}`});
-    }
+
+const isLoading = ref(true); // 控制加载指示器的显示
+
+async function handleConversationChange(conversationId) {
+  try {
+    isLoading.value = true;
+    await loadConversation(conversationId); // 加载对话
+    await loadMessage(conversationId); // 加载消息
+    isLoading.value = false;
+  } catch (error) {
+    console.error('Failed to load data:', error);
+    // 处理错误，例如显示一个错误消息
+    isLoading.value = false;
   }
-  next();
+}
+// 首次加载数据或处理逻辑
+onMounted(() => {
+  const conversationId = route.query.conversationId;
+  if (conversationId) {
+    handleConversationChange(conversationId);
+  }
 });
+
+watch(() => route.query.conversationId, (newConversationId) => {
+  if (newConversationId) {
+    handleConversationChange(newConversationId);
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>
@@ -300,14 +311,14 @@ onBeforeRouteUpdate(async (to, from, next) => {
   width: 100%; /* 宽度填满父容器 */
   border-radius: 4px; /* 圆角边框 */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), /* 阴影效果 */
-               0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out; /* 动效 */
 }
 
 /* 鼠标悬停时的动效和阴影变化 */
 .select-style:hover, .input-style:hover, .textarea-style:hover {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-              0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  0 4px 6px -2px rgba(0, 0, 0, 0.05);
   transform: translateY(-2px); /* 简单的悬浮效果 */
 }
 .slider-style {

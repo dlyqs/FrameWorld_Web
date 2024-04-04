@@ -1,3 +1,5 @@
+import {setUserStorage} from "./localStorage";
+
 export const getDefaultConversationData = () => {
     return {
         id: null,
@@ -57,5 +59,6 @@ export const setUser = (userData) => {
 export const logout = async () => {
     const user = useUser();
     user.value = null;
+    setUserStorage(null);
     await navigateTo('/account/signin');
 };

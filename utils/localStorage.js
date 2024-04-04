@@ -19,14 +19,6 @@ export const setModels = (val) => {
     models.value = val
 }
 
-// export const getStoredModels = () => {
-//     let models = get(STORAGE_KEY.MODELS)
-//     if (!models) {
-//         models = [DEFAULT_MODEL]
-//     }
-//     return models
-// }
-
 export const saveCurrentModel = (val) => {
     set(STORAGE_KEY.CURRENT_MODEL, val)
 }
@@ -48,3 +40,7 @@ export const setApiKey = (val) => {
 export const getStoredApiKey = () => {
     return get(STORAGE_KEY.OPENAI_API_KEY)
 }
+
+export const getUser = () => get(STORAGE_KEY.USER);
+
+export const setUserStorage = (val) => set(STORAGE_KEY.USER, val);

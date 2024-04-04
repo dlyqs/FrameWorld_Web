@@ -208,9 +208,9 @@ const deleteMessage = (index) => {
   props.conversation.messages.splice(index, 1)
 }
 
-// 设置为空数组清空消息显示
+// 清空消息显示,但又不触发新对话的创建逻辑
 const clearMessages = () => {
-  props.conversation.messages = [];
+  props.conversation.messages = [''];
 };
 
 // 添加计算属性来获取最后一条机器的消息

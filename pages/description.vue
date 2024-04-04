@@ -149,6 +149,7 @@ const optionText = computed(() => {
 });
 
 /*————————————————————————对话加载及路由跳转————————————————————————*/
+const route = useRoute();
 const router = useRouter();
 const conversation = ref(getDefaultConversationData());
 
@@ -168,23 +169,34 @@ async function loadMessage(id) {
   }
 }
 
-// 使用Vue Router的beforeRouteUpdate守卫
-onBeforeRouteUpdate(async (to, from, next) => {
-  if (to.params.id !== from.params.id) {
-    conversation.value.loadingMessages = true;
-    const source_page = await loadConversation(to.params.id)
-    if (source_page === sourcePage){
-      await loadMessage(to.params.id);
-      conversation.value.loadingMessages = false;
-      await router.replace({path: '/', hash: `${sourcePage}`});
-    }
-    else {
-      await router.replace({path: '/', hash: `${source_page}`});
-      await router.replace({ path:`/${to.params.id}`});
-    }
+
+const isLoading = ref(true); // 控制加载指示器的显示
+
+async function handleConversationChange(conversationId) {
+  try {
+    isLoading.value = true;
+    await loadConversation(conversationId); // 加载对话
+    await loadMessage(conversationId); // 加载消息
+    isLoading.value = false;
+  } catch (error) {
+    console.error('Failed to load data:', error);
+    // 处理错误，例如显示一个错误消息
+    isLoading.value = false;
   }
-  next();
+}
+// 首次加载数据或处理逻辑
+onMounted(() => {
+  const conversationId = route.query.conversationId;
+  if (conversationId) {
+    handleConversationChange(conversationId);
+  }
 });
+
+watch(() => route.query.conversationId, (newConversationId) => {
+  if (newConversationId) {
+    handleConversationChange(newConversationId);
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>

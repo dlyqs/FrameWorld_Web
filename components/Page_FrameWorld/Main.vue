@@ -35,7 +35,7 @@
       </div>
     </div>
     <div class="comments-section">
-      <!-- 评论区域的内容 -->
+      <Comment/>
     </div>
   </div>
 </template>
@@ -44,6 +44,7 @@
 import { useDrawer } from "~/composables/states"
 import * as THREE from "three"
 import FOG from "vanta/src/vanta.fog"
+import Comment from "./comment.vue";
 
 const isPlaying = ref(false)
 const progress = ref(0)
@@ -118,6 +119,7 @@ onBeforeUnmount(() => {
   flex-direction: column; /* 设置为垂直布局 */
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
+  height: auto;
 }
 .main-field {
   width: 877px;
@@ -164,7 +166,7 @@ onBeforeUnmount(() => {
   padding: 2rem;
   margin-top: 20px;
   background-color: #fff; /* 根据需要调整 */
-  height: 600px;
+  height: auto;
   margin-left: auto; /* 自动计算左边距 */
   margin-right: auto; /* 自动计算右边距 */
   width: 877px;

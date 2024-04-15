@@ -8,11 +8,12 @@
       <div v-if="conversation.messages" ref="chatWindow">
         <v-container class="conversation_container">
           <v-row>
-            <v-col v-for="(message, index) in conversation.messages" :key="index" cols="12">
-              <div class="d-flex align-center" :class="message.is_bot ? 'justify-start' : 'justify-end'">
-                <MessageActions v-if="!message.is_bot" :message="message" :message-index="index" :toggle-message="toggleMessage"/>
-                <MsgContent :message="message" :index="index" :use-prompt="usePrompt" :delete-message="deleteMessage"/>
-                <MessageActions v-if="message.is_bot" :message="message" :message-index="index" :use-prompt="usePrompt" :delete-message="deleteMessage"/>
+            <!-- 修改这部分来仅显示最后一条机器消息 -->
+            <v-col cols="12">
+              <div class="d-flex align-center justify-start conversation_container">
+                <!-- 使用lastBotMessage代替循环 -->
+                <MsgContent v-if="lastBotMessage" :message="lastBotMessage"/>
+                <MessageActions v-if="lastBotMessage" :message="lastBotMessage" :use-prompt="usePrompt" :delete-message="deleteMessage"/>
               </div>
             </v-col>
           </v-row>
@@ -211,6 +212,18 @@ const deleteMessage = (index) => {
 const toggleMessage = (index) => {
   props.conversation.messages[index].is_disabled = !props.conversation.messages[index].is_disabled
 }
+
+// 清空消息显示,但又不触发新对话的创建逻辑
+const clearMessages = () => {
+  props.conversation.messages = [''];
+};
+
+// 添加计算属性来获取最后一条机器的消息
+const lastBotMessage = computed(() => {
+  // 每条消息都有一个is_bot标识和created_at时间戳.过滤出机器的消息，并根据created_at进行排序，取最新的一条
+  const botMessages = props.conversation.messages.filter(msg => msg.is_bot);
+  return botMessages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+});
 
 /*————————————————————————与子组件MsgEditor通信————————————————————————*/
 const editor = ref(null)

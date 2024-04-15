@@ -44,3 +44,15 @@ export const getStoredApiKey = () => {
 export const getUser = () => get(STORAGE_KEY.USER);
 
 export const setUserStorage = (val) => set(STORAGE_KEY.USER, val);
+
+export const setSearchResults = (query, results) => {
+    set(STORAGE_KEY.SEARCH_RESULTS, { query, results });
+}
+
+export const getSearchResults = (query) => {
+    const storedResults = get(STORAGE_KEY.SEARCH_RESULTS);
+    if (storedResults && storedResults.query === query) {
+        return storedResults.results;
+    }
+    return null; // 如果没有找到匹配的搜索结果或者query不匹配，返回null
+}

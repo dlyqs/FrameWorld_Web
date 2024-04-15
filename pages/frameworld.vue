@@ -29,8 +29,8 @@
               </v-avatar>
             </v-col>
             <v-col cols="8">
-              <div class="text-name">lyq</div>
-              <div class="text-caption">6dlyqs6@gmail.com</div>
+              <div class="text-name">{{ user?.username }}</div>
+              <div class="text-caption">{{ user?.email }}</div>
             </v-col>
           </v-row>
         </v-card>
@@ -75,7 +75,8 @@
 </template>
 
 <script setup>
-import Main from '~/pages/Page_FrameWorld/Main.vue';
+import Main from '~/components/Page_FrameWorld/Main.vue';
+
 
 definePageMeta({
   layout: 'frameworld'

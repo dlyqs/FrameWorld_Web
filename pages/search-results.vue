@@ -50,7 +50,11 @@ const loading = ref(true);
 
 onMounted(async () => {
   const query = route.query.q;
-  if (query) {
+  const cachedResults = getSearchResults(query);
+  if (cachedResults) {
+    searchResults.value = cachedResults;
+    loading.value = false;
+  } else if (query) {
     try {
       const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
       if (!response.ok) {
@@ -61,6 +65,8 @@ onMounted(async () => {
         ...item,
         actors: getShortActorList(item.actors)
       }));
+      // 保存到localStorage
+      setSearchResults(query, searchResults.value);
     } catch (error) {
       console.error("Fetching search results failed:", error);
     } finally {
@@ -80,9 +86,9 @@ const goBack = () => {
 
 <style scoped>
 .wrapper {
-  padding-top: 0;
-  padding-left: 0;
-  padding-right: 0;
+  padding-top: 1rem;
+  padding-left: 5rem;
+  padding-right: 5rem;
 }
 
 .header {
@@ -90,8 +96,8 @@ const goBack = () => {
   align-items: center;
   justify-content: space-between;
   background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   height: 70px;
+  box-shadow: none;
 }
 
 .back-button {
@@ -110,22 +116,29 @@ const goBack = () => {
 .back-button::after {
   content: '';
   position: absolute;
-  left: 100%;
+  left: 88%; /* 调整为按钮宽度的一半 */
+  top: 80%; /* 居中对齐 */
+  transform: translate(-100%, -50%);
   white-space: nowrap; /* 确保文本不会换行 */
   opacity: 0; /* 默认情况下文本不显示 */
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  transform: translateX(-50%);
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+  border: none;
+  color: snow;
+  font-size: 1.3rem;
+  font-family: smiley-sans, sans-serif;
 }
 
 .back-button:hover {
   border-radius: 50px;
   width: 80px;
+  padding-left: 1rem;
+  justify-content: flex-end;
 }
 
 .back-button:hover::after {
-  content: ' 返回';
+  content: '返回';
   opacity: 1;
-  transform: translateX(10px); /* 根据需要调整距离 */
+  transform: translate(-100%, -50%); /* 根据需要调整距离 */
 }
 
 /* 加载指示器容器样式 */

@@ -209,7 +209,11 @@ const router = useRouter();
 
 function selectConversation(conversationId, sourcePage) {
   if (sourcePage && conversationId){
-    router.push({ path: `/${sourcePage}`, query: { conversationId } });
+    if (sourcePage === 'welcome') {
+      router.push({ path: `/`, query: { conversationId } });
+    } else {
+      router.push({ path: `/${sourcePage}`, query: { conversationId } });
+    }
   }
 }
 </script>

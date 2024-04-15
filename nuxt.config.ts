@@ -44,5 +44,5 @@ export default defineNuxtConfig({
     router: {
         middleware: ['auth']
     },
-    plugins: ['~/plugins/auth-persist.js'],
+    plugins: ['~/plugins/auth-persist.js','~/plugins/undraw-ui.ts',],
 })

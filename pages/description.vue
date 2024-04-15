@@ -132,7 +132,6 @@ const onGenerateClick = async () => {
                        以此来给出比不给你数据参考时更好更贴切更能把握当下热点网络潮流的标题建议，记住参考完数据后给出的建议需要与你直接给出的有所不同。`;
     conversationComponent.value.applyPrompt(newPrompt);
     conversationComponent.value.triggerSend();    // 触发MsgEditor发送操作
-    router.push({ path: `/${currentConversationId.value}`});
   }
 };
 

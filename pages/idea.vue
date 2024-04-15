@@ -154,7 +154,7 @@ const generatedPrompts = computed(() => {
     return null
   }
   const creativityText = computedCreativityLevel.value;
-  return `请给出和关键词：${selectedCategories.value.join('、')}，相关的一个简短描述。`
+  return `我是一名视频创作者，现在想创作一个${selectedType.value}，初步考虑的分区是（${selectedCategories.value.join('、')}），主要会在${selectedPlatform.value}发布。我希望你给出的视频创意点子是"${creativityText}"的，请你只需要生成${selectedGenerateCount.value}个参考意见（精确这个回答数，不能多不能少）,意见需要十分详细，除了笼统的意见外还跟一个实际操作案例在后面。对于你的回答，有以下严格的样式要求：1、你不要多说任何一句话，开门见山仅生成你提供的回答。2、如果前文说让你给出1个建议，那你就只要回答这个建议本身，回答完即结束，如果让你生成1个以上的建议，你就分点列出建议，切忌除了回答之外不要有其它任何语句。3、回答的最开始是空的一行，换行后再开始回答。`
 })
 
 /*————————————————————————消息发送————————————————————————*/

@@ -242,7 +242,8 @@ defineExpose({ applyPrompt, triggerSend, clearMessages });
 .conversation_container{
   margin-left: 2rem;
 }
-.hidden-editor {
+
+.footer {
   visibility: hidden;
   height: 0;
   overflow: hidden;

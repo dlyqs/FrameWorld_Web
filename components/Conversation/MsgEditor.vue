@@ -48,20 +48,18 @@ defineExpose({ usePrompt, send });
 .msg-input-container {
   max-width: 700px;
   margin: 0 auto;
-  padding-bottom: 25px;
+  padding-bottom: 5rem;
   align-content: center;
   justify-content: space-between;
-
 }
 .custom-textarea{
-  height: 48px;
-  border-radius:.5rem;
-
+  height: 68px !important;
+  border-radius:1rem;
 }
 .custom-send-btn {
   background-color: white !important;
   width: 44px;  /* 设置宽度和高度使按钮变成正方形 */
   height: 44px;
-  margin-bottom: 3px;
+  margin-bottom: 6px;
 }
 </style>

@@ -41,6 +41,15 @@
     </v-menu>
     <v-divider></v-divider>
 
+    <div class="entry-info" v-if="entryData">
+      <img :src="entryData.cover_url" alt="Cover image" class="entry-cover">
+      <h3>{{ entryData.title }}</h3>
+      <p>{{ entryData.type }} - {{ entryData.version }}</p>
+      <p>尺寸: {{ entryData.x_frame_size }} x {{ entryData.y_frame_size }}</p>
+      <a :href="entryData.douban_url" target="_blank">豆瓣</a>
+      <a :href="entryData.imdb_url" target="_blank">IMDB</a>
+    </div>
+
     <!-- 设置 -->
     <template v-slot:append>
       <v-expansion-panels style="flex-direction: column" >
@@ -105,6 +114,22 @@ const signOut = async () => {
   }
 }
 
+/*————————————————————————条目信息加载————————————————————————*/
+const entryId = ref(1); // 假设当前条目ID，后期动态获取
+const entryData = ref(null);
+
+onMounted(async () => {
+  try {
+    const response = await useFetch(`/api/frameworld/entries/${entryId.value}/`);
+    if (response.ok) {
+      entryData.value = await response.json();
+    } else {
+      console.error('Failed to fetch entry data');
+    }
+  } catch (error) {
+    console.error('Error fetching entry data:', error);
+  }
+});
 </script>
 
 <style scoped>

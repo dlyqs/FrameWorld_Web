@@ -24,15 +24,22 @@
       <span>{{ displayTime(reply.time) }}</span>
 
       <!-- 点赞按钮和点赞数 -->
-      <v-btn variant="text">
-        <v-icon>thumb_up</v-icon>
+      <v-btn variant="text" @click="toggleLike">
+        <!-- 条件渲染不同的图标 -->
+        <template v-if="userHasLiked">
+          <!-- 实心爱心 -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffcad4" width="20px" height="20px">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </template>
+        <template v-else>
+          <!-- 空心爱心 -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ffcad4" stroke-width="2" width="20px" height="20px">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </template>
       </v-btn>
-      <span>{{ reply.popularity }}</span>
-
-      <!-- 点踩按钮 -->
-      <v-btn variant="text">
-        <v-icon>thumb_down</v-icon>
-      </v-btn>
+      <span>{{ localPopularity }}</span>
 
       <!-- 回复按钮 -->
       <v-btn variant="text" small @click="showReplyField = !showReplyField">回复</v-btn>
@@ -42,10 +49,12 @@
     <div class="right-items">
       <v-menu>
         <template v-slot:activator="{ props }">
-          <v-btn class="btn_more" v-bind="props" icon="more_horiz" variant="text"></v-btn>
+          <v-btn class="btn_more" v-bind="props" color="grey" icon="more_horiz" variant="text"></v-btn>
         </template>
         <v-list class="list_more">
           <v-list-item class="list_item_more" @click="copyMessage" title="Copy" prepend-icon="content_copy"></v-list-item>
+          <!-- 条件显示删除按钮 -->
+          <v-list-item v-if="user.id === reply.user" @click="deleteComment" title="Delete" prepend-icon="delete"></v-list-item>
         </v-list>
       </v-menu>
       <v-snackbar v-model="snackbar" :timeout="2000">
@@ -121,8 +130,6 @@ const addComment = async () => {
   }
 };
 
-
-
 const showReplyField = ref(false);
 const replyContent = ref('');
 const props = defineProps({
@@ -148,18 +155,31 @@ const copyMessage = () => {
 const username = ref('')
 const replyUsername = ref('');
 
+//获取评论者的用户名
 const fetchUsername = async (userId) => {
   if (userId) {
     const { data, error } = await useFetch(`/api/account/user/${userId}`);
     if (!error.value && data.value) {
       username.value = data.value.username;
-      replyUsername.value = data.value.username;
     } else {
       console.error('Failed to fetch user:', error.value);
     }
   }
 };
 
+//获取回复对象的id
+const fetchReplyComment = async (replyId) => {
+  if (replyId) {
+    const { data, error } = await useFetch(`/api/frameworld/global_comments/?id=${replyId}`);
+    if (!error.value && data.value && data.value.length > 0) {
+      fetchreplyUsername(data.value[0].user);  // 现在访问数组中的第一个元素的user属性
+    } else {
+      console.error('Failed to fetch reply comment:', error.value);
+    }
+  }
+};
+
+//获取回复对象的用户名
 const fetchreplyUsername = async (userId) => {
   if (userId) {
     const { data, error } = await useFetch(`/api/account/user/${userId}`);
@@ -170,7 +190,6 @@ const fetchreplyUsername = async (userId) => {
     }
   }
 };
-
 watchEffect(() => {
   if (props.reply && props.reply.user) {
     fetchUsername(props.reply.user);
@@ -180,9 +199,113 @@ watchEffect(() => {
 
 watchEffect(() => {
   if (props.reply.parentID !== props.reply.replies) {
-    fetchreplyUsername(props.reply.replies.user);
+    fetchReplyComment(props.reply.replies);
   }
 });
+
+// comment-info区域
+const localPopularity = ref(props.reply.popularity);
+const userHasLiked = ref(false);
+const recordExists = ref(false);
+const recordId = ref('');
+
+// 异步获取用户对评论的点赞状态
+const fetchLikeStatus = async (commentId) => {
+  const { data, error } = await useFetch(`/api/frameworld/like_records/?comment=${commentId}&user=${user.value.id}`);
+  if (!error.value && data.value.length > 0) {
+    userHasLiked.value = data.value[0].status;
+    recordExists.value = true;
+    recordId.value = data.value[0].id;
+  } else {
+    userHasLiked.value = false;
+    recordExists.value = false;
+    recordId.value = '';
+  }
+};
+
+watchEffect(() => {
+  if (props.reply && props.reply.id) {
+    fetchLikeStatus(props.reply.id);
+  }
+});
+
+
+// 监听 props.reply.popularity 的变化，以同步更新本地变量
+watch(() => props.reply.popularity, (newVal) => {
+  localPopularity.value = newVal;
+});
+
+const modifyPopularity = async (delta) => {
+
+  const newPopularity = localPopularity.value + delta;
+
+  try {
+    const response = await $fetch(`/api/frameworld/global_comments/${props.reply.id}/`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ popularity: newPopularity })
+    });
+
+    if (!response.error) {
+      // 更新本地变量
+      localPopularity.value = newPopularity;
+    } else {
+      throw new Error(response.error);
+    }
+  } catch (error) {
+    console.error('Error updating comment popularity:', error);
+  }
+};
+
+// 点赞切换函数
+const toggleLike = async () => {
+  const delta = userHasLiked.value ? -1 : 1;
+  await modifyPopularity(delta);
+  userHasLiked.value = !userHasLiked.value;
+
+  // 更新或创建点赞记录
+  const method = recordExists.value ? 'PATCH' : 'POST';
+  const url = recordExists.value ? `/api/frameworld/like_records/${recordId.value}/` : `/api/frameworld/like_records/`;
+
+  const recordData = {
+    comment: props.reply.id,
+    user: user.value.id,
+    status: userHasLiked.value
+  };
+
+  try {
+    const response = await $fetch(url, {
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(recordData)
+    });
+
+    if (!response.ok) throw new Error('Failed to update like record');
+
+    if (!recordExists.value) {
+      recordExists.value = true;    // 标记为存在记录
+      recordId.value = response.data.id;  // 保存新创建记录的ID
+    }
+  } catch (error) {
+    console.error('Error updating like record:', error);
+  }
+};
+
+const deleteComment = async () => {
+  if (confirm('Are you sure you want to delete this comment?')) {
+    try {
+      await $fetch(`/api/frameworld/global_comments/${props.reply.id}/delete_with_likes/`, {
+        method: 'DELETE'
+      });
+
+      alert('Comment and associated likes deleted successfully');
+
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      alert('Failed to delete the comment');
+    }
+  }
+};
 </script>
 
 <style scoped>

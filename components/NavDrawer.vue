@@ -16,7 +16,7 @@
         <v-row>
           <v-col cols="3">
             <v-avatar size="38px" class="avatar">
-              <img src="/headpic.jpg" alt="User's avatar">
+              <img :src="userInfo?.avatar_url" alt="User's avatar">
             </v-avatar>
           </v-col>
           <v-col cols="8">
@@ -142,6 +142,7 @@ const toggleButtonStyle = computed(() => ({
 /*————————————————————————用户管理操作————————————————————————*/
 const user = useUser()
 const menu = ref(false)
+const { userInfo, error, fetchUserInfo } = useUserInfo();
 
 // 用户登出
 const signOut = async () => {
@@ -203,6 +204,7 @@ const loadConversations = async () => {
 // 页面加载完成时加载对话
 onNuxtReady(() => {
   loadConversations()
+  fetchUserInfo(user.value.id);
 })
 
 const router = useRouter();

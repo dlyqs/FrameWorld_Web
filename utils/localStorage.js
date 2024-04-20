@@ -1,5 +1,5 @@
 
-const get = (key) => {
+export const get = (key) => {
     if (process.server) return
     let val = localStorage.getItem(key)
     if (val) {
@@ -8,7 +8,7 @@ const get = (key) => {
     return val
 }
 
-const set = (key, val) => {
+export const set = (key, val) => {
     if (process.server) return
     localStorage.setItem(key, JSON.stringify(val))
 }
@@ -56,3 +56,12 @@ export const getSearchResults = (query) => {
     }
     return null; // 如果没有找到匹配的搜索结果或者query不匹配，返回null
 }
+
+export function setLocalStorageUser(user) {
+    set(STORAGE_KEY.USER_INFO, user);
+}
+
+export function getLocalStorageUser() {
+    get(STORAGE_KEY.USER_INFO);
+}
+

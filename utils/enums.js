@@ -4,6 +4,9 @@ export const STORAGE_KEY = {
   OPENAI_API_KEY: 'openai_api_key',
   USER: 'user_info',
   SEARCH_RESULTS: 'search_results',
+  USER_INFO: 'user_extra_info',
+  USERNAME: 'username',
+  USER_LIKE_STATUS: 'userLikeStatus',
 }
 
 export const MODELS = {

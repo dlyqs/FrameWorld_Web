@@ -16,7 +16,7 @@
                   placeholder="发表评论..." :rows="rows" @input="handleInput" @focus="showActions = true"
                   @blur="onBlur"></textarea>
         <div v-show="showActions" class="comment-actions">
-          <v-btn class="pink_btn" @click="addComment">提交</v-btn>
+          <v-btn class="pink_btn" @click="submitComment">提交</v-btn>
         </div>
       </v-col>
     </v-row>
@@ -26,7 +26,7 @@
       <v-col cols="12">
         <v-list three-line>
           <RootComment v-for="comment in paginatedRootComments" :key="comment.id" :comment="comment"
-                       :indent-level="comment.parentID ? 1 : 0" @reply="prepareReply"/>
+                       :indent-level="comment.parentID ? 1 : 0" @reply="prepareReply" @update-total-comments="totalComments += 1"/>
         </v-list>
         <v-pagination v-model="pagination.page" :length="Math.ceil(totalComments / rootCommentPageSize)" :total-visible="4"/>
       </v-col>
@@ -37,74 +37,43 @@
 <script setup>
 import RootComment from './RootComment.vue';
 
-
-const totalComments = ref(0);
-const pagination = ref({ page: 1, itemsPerPage: 5 });
-
-
-const rootComments = ref({ items: [], total: 0 });
-const commentReplies = ref({});
-
-const entryId = ref(1); // 假设当前条目ID，后期动态获取
-
-const showActions = ref(false);  // 控制动作区显示
-
-const newCommentContent = ref('');    // 绑定的消息文本
 const rows = ref(2);        // 文本域的行数
-
+const entryId = ref(1); // 假设当前条目ID，后期动态获取
+const totalComments = ref(0);
+const commentReplies = ref({});
+const pagination = ref({ page: 1, itemsPerPage: 5 });
+const rootComments = ref({ items: [], total: 0 });
+const newCommentContent = ref('');    // 绑定的消息文本
+const showActions = ref(false);  // 控制动作区显示
 const user = useUser(); // 使用useUser hook获取当前用户信息
 
 const handleInput = (event) => {
   const lines = event.target.value.split(/\r\n|\r|\n/).length;
   rows.value = lines > 8 ? 8 : lines; // 限制最大行数为8
-
 };
-// 当输入区域失去焦点时延迟隐藏动作区
 const onBlur = () => {
   setTimeout(() => {
-    showActions.value = false;
-  }, 300);  // 延迟300毫秒后隐藏
+    showActions.value = false;  // 当输入区域失去焦点时延迟隐藏动作区
+  }, 300);
 };
-const addComment = async () => {
-  if (!newCommentContent.value.trim()) {
-    alert("评论内容不能为空！");
-    return;
-  }
-  const commentData = {
-    entry: entryId.value,
-    time: new Date().toISOString(),
+
+// 添加根评论
+const { addComment } = useAddComment();
+const submitComment = async () => {
+  const newComment = await addComment({
+    entryId: entryId.value,
     content: newCommentContent.value,
-    parentID: "",  // 根评论，所以parentID为空
-    replies: "",   // 根评论，所以replies为空
-    popularity: 0,
-    user: user.value.id  // 假设useUser返回当前用户对象
-  };
-
-  try {
-    const response = await useFetch('/api/frameworld/global_comments/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(commentData)
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to post comment');
-    }
-
-    const newComment = await response.json();
+    userID: user.value.id
+  });
+  if (newComment) {
     rootComments.value.items.push(newComment);
     totalComments.value += 1;
-    newCommentContent.value = ''; // 清空输入框
-    alert('评论发布成功！');
-  } catch (error) {
-    console.error('Error adding comment:', error);
+    newCommentContent.value = '';
   }
 };
 
+// 加载评论
 const loadComments = async () => {
-  // 只在客户端执行useFetch
   if (process.client) {
     const response = await useFetch(`/api/frameworld/global_comments/?entry=${entryId}`, {
       method: 'GET',
@@ -127,7 +96,6 @@ const loadComments = async () => {
     }
   }
 };
-
 onMounted(loadComments);
 
 // 使用watchEffect来确保每次entryId变化时，都会重新加载评论
@@ -135,6 +103,7 @@ watchEffect(() => {
   loadComments();
 });
 
+// 计算分页后的根评论
 const paginatedRootComments = computed(() => {
   const start = (pagination.value.page - 1) * pagination.value.itemsPerPage;
   const end = start + pagination.value.itemsPerPage;

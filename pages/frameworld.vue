@@ -6,8 +6,8 @@
         <v-card class="user-card-content elevation-0" id="menu-activator">
           <v-row>
             <v-col>
-              <v-avatar size="32px" class="avatar">
-                <img src="/headpic.jpg" alt="User's avatar">
+              <v-avatar size="34px" class="avatar">
+                <img :src="userInfo?.avatar_url" alt="User's avatar">
               </v-avatar>
             </v-col>
             <v-col>
@@ -170,6 +170,7 @@ const toggleButtonStyle = computed(() => ({
 const user = useUser()
 const menu = ref(false)
 
+
 // 用户登出
 const signOut = async () => {
   const { error } = await useFetch('/api/account/logout/', {
@@ -184,6 +185,7 @@ const signOut = async () => {
 /*————————————————————————条目信息加载————————————————————————*/
 const entryId = ref(1); // 假设当前条目ID，后期动态获取
 const entryData = ref(null);
+const { userInfo, error, fetchUserInfo } = useUserInfo();
 
 onMounted(async () => {
   try {
@@ -197,6 +199,7 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error fetching entry data:', error);
   }
+  await fetchUserInfo(user.value.id);
 });
 
 const formattedTime = computed(() => {

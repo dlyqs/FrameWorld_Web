@@ -1,9 +1,7 @@
 <template>
   <div class="comment-item">
     <!-- 用户头像 -->
-    <div class="avatar">
-      <img src="/headpic.jpg" alt="User's avatar">
-    </div>
+    <div class="avatar" :style="{ backgroundImage: 'url(' + userInfo?.avatar_url + ')' }"></div>
     <!-- 用户名称和评论内容 -->
     <div class="comment-content">
       <div class="comment-title">{{ username || 'Loading...' }}</div>
@@ -17,7 +15,7 @@
       <span>{{ displayTime(comment.time) }}</span>
 
       <!-- 点赞按钮和点赞数 -->
-      <v-btn variant="text" @click="toggleLike">
+      <v-btn variant="text" @click="handleToggleLike">
         <!-- 条件渲染不同的图标 -->
         <template v-if="userHasLiked">
           <!-- 实心爱心 -->
@@ -47,7 +45,7 @@
         <v-list class="list_more">
           <v-list-item @click="copyMessage" title="Copy" prepend-icon="content_copy"></v-list-item>
           <!-- 条件显示删除按钮 -->
-          <v-list-item v-if="user.id === comment.user" @click="deleteComment" title="Delete" prepend-icon="delete"></v-list-item>
+          <v-list-item v-if="user.id === comment.user" @click="deleteCommentHandler" title="Delete" prepend-icon="delete"></v-list-item>
         </v-list>
       </v-menu>
       <v-snackbar v-model="snackbar" :timeout="2000">
@@ -62,18 +60,21 @@
               placeholder="发表评论..." :rows="rows" @input="handleInput" @focus="showActions = true"
               @blur="onBlur"></textarea>
     <div v-show="showActions" class="comment-actions">
-      <v-btn class="pink_btn" @click="addComment">提交</v-btn>
+      <v-btn class="pink_btn" @click="submitComment">提交</v-btn>
     </div>
   </div>
 
   <!-- 根评论回复显示区 -->
   <div class="replies">
-    <ReplyComment v-for="reply in comment.replies" :key="reply.id" :reply="reply"/>
+    <ReplyComment v-for="reply in comment.replies" :key="reply.id" :reply="reply" @reply-added="handleReplyAdded" @update-total-comments="$emit('update-total-comments')" />
   </div>
 </template>
 
 <script setup>
+import copy from 'copy-to-clipboard';
 import ReplyComment from './ReplyComment.vue';
+import { formatDistanceToNow, parseISO } from 'date-fns';
+
 
 // 评论回复区域
 const user = useUser();                 // 使用useUser hook获取当前用户信息
@@ -86,138 +87,52 @@ const props = defineProps({
   comment: Object,
 });
 
-// comment-item区域
-
-const deleteComment = async () => {
-  if (confirm('Are you sure you want to delete this comment?')) {
-    try {
-      await $fetch(`/api/frameworld/global_comments/${props.comment.id}/delete_with_likes/`, {
-        method: 'DELETE'
-      });
-
-      alert('Comment and associated likes deleted successfully');
-
-    } catch (error) {
-      console.error('Error deleting comment:', error);
-      alert('Failed to delete the comment');
-    }
-  }
-};
 
 
-// 异步获取用户名称
-const username = ref('')
-const fetchUsername = async (userId) => {
-  if (userId) { // 确保userId存在
-    const { data, error } = await useFetch(`/api/account/user/${userId}`);
-    if (!error.value && data.value) {
-      username.value = data.value.username;
-    } else {
-      console.error('Failed to fetch user:', error.value);
-    }
-  }
-};
+
+// 删除评论
+const { deleteComment } = useDeleteComment()
+const deleteCommentHandler = () => {
+  deleteComment(props.comment.id)
+}
+
+// 获取用户名称
+const username = ref('');
+const { fetchUsername } = useFetchUsername();
 
 watchEffect(() => {
   if (props.comment && props.comment.user) {
-    fetchUsername(props.comment.user);
+    fetchUsername(props.comment.user, (name) => {
+      username.value = name;
+    });
   }
 });
 
-
 // comment-info区域
-import { formatDistanceToNow, parseISO } from 'date-fns';
-import copy from 'copy-to-clipboard';
-
 const showReplyField = ref(false);
 const snackbar = ref(false);
 const snackbarText = ref('');
+
+// 获取用户头像等信息
+const { userInfo, error, fetchUserInfo } = useUserInfo();
+onMounted(async () => {
+  await fetchUserInfo(props.comment.user);
+});
+
+// 获取用户对点赞记录、及点赞操作
 const localPopularity = ref(props.comment.popularity);
-const userHasLiked = ref(false);
-const recordExists = ref(false);
-const recordId = ref('');
-
-// 异步获取用户对评论的点赞状态
-const fetchLikeStatus = async (commentId) => {
-  const { data, error } = await useFetch(`/api/frameworld/like_records/?comment=${commentId}&user=${user.value.id}`);
-  if (!error.value && data.value.length > 0) {
-    userHasLiked.value = data.value[0].status;
-    recordExists.value = true;
-    recordId.value = data.value[0].id;
-  } else {
-    userHasLiked.value = false;
-    recordExists.value = false;
-    recordId.value = '';
-  }
-};
-
-watchEffect(() => {
+const { userHasLiked, fetchLikeStatus, toggleLike } = useCommentLike(props.comment.id, user.value.id, localPopularity);
+onMounted(async ()=> {
   if (props.comment && props.comment.id) {
-    fetchLikeStatus(props.comment.id);
+    fetchLikeStatus();
   }
 });
 
-
-// 监听 props.comment.popularity 的变化，以同步更新本地变量
-watch(() => props.comment.popularity, (newVal) => {
-  localPopularity.value = newVal;
-});
-
-const modifyPopularity = async (delta) => {
-
-  const newPopularity = localPopularity.value + delta;
-
-  try {
-    const response = await $fetch(`/api/frameworld/global_comments/${props.comment.id}/`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ popularity: newPopularity })
-    });
-
-    if (!response.error) {
-      // 更新本地变量
-      localPopularity.value = newPopularity;
-    } else {
-      throw new Error(response.error);
-    }
-  } catch (error) {
-    console.error('Error updating comment popularity:', error);
-  }
-};
-
-const toggleLike = async () => {
+const handleToggleLike = async () => {
+  toggleLike();
   const delta = userHasLiked.value ? -1 : 1;
-  await modifyPopularity(delta);
-  userHasLiked.value = !userHasLiked.value;
-
-  // 更新或创建点赞记录
-  const method = recordExists.value ? 'PATCH' : 'POST';
-  const url = recordExists.value ? `/api/frameworld/like_records/${recordId.value}/` : `/api/frameworld/like_records/`;
-
-  const recordData = {
-    comment: props.comment.id,
-    user: user.value.id,
-    status: userHasLiked.value
-  };
-
-  try {
-    const response = await $fetch(url, {
-      method: method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(recordData)
-    });
-
-    if (!response.ok) throw new Error('Failed to update like record');
-
-    if (!recordExists.value) {
-      recordExists.value = true;    // 标记为存在记录
-      recordId.value = response.data.id;  // 保存新创建记录的ID
-    }
-  } catch (error) {
-    console.error('Error updating like record:', error);
-  }
+  localPopularity.value += delta;
 };
-
 
 // 动态显示评论时间
 const displayTime = (time) => {
@@ -247,38 +162,26 @@ const onBlur = () => {
 };
 
 // 添加对根评论的回复
-const addComment = async () => {
-  if (!newRootCommentContent.value.trim()) {
-    alert("评论内容不能为空！");
-    return;
-  }
-  const commentData = {
-    entry: entryId.value,
-    time: new Date().toISOString(),
+const { addComment } = useAddComment();
+const emit = defineEmits(['update-total-comments']);
+const submitComment = async () => {
+  const newComment = await addComment({
+    entryId: entryId.value,
     content: newRootCommentContent.value,
-    parentID: props.comment.id,  // 根评论的回复
-    replies: props.comment.id,   // 根评论的回复
-    popularity: 0,
-    user: user.value.id  // 当前用户对象
-  };
+    parentID: props.comment.id,
+    replies: props.comment.id,
+    userID: user.value.id
+  });
 
-  try {
-    const response = await useFetch('/api/frameworld/global_comments/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(commentData)
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to post comment');
-    }
-    newRootCommentContent.value = ''; // 清空输入框
-    alert('评论发布成功！');
-  } catch (error) {
-    console.error('Error adding comment:', error);
+  if (newComment) {
+    props.comment.replies.push(newComment);
+    newRootCommentContent.value = '';
+    emit('update-total-comments');
   }
+};
+
+const handleReplyAdded = (newReply) => {
+  props.comment.replies.push(newReply); // 更新回复列表
 };
 </script>
 
@@ -297,14 +200,18 @@ const addComment = async () => {
   background-color: #f9f9f9; /* 回复背景稍微有点区分 */
   border-radius: 1rem;
 }
-.avatar{
+
+.avatar {
   margin-left: 4px;
   margin-top: 2px;
-}
-.avatar img {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 40px;  /* 设置头像宽度 */
+  height: 40px;  /* 设置头像高度 */
+  border-radius: 50%;  /* 圆形头像 */
+  background-position: center;  /* 确保背景图片居中显示 */
+  background-size: cover;  /* cover 确保图片完全覆盖容器区域，同时保持图片的长宽比 */
+  background-repeat: no-repeat;  /* 防止背景图片重复 */
+  overflow: hidden;  /* 隐藏容器外的背景图部分 */
+  border: 2px solid #fff;  /* 可选：为头像添加边框 */
 }
 .comment-content {
   flex: 1;

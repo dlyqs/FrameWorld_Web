@@ -25,8 +25,8 @@
     <v-row>
       <v-col cols="12">
         <v-list three-line>
-          <RootComment v-for="comment in paginatedRootComments" :key="comment.id" :comment="comment"
-                       :indent-level="comment.parentID ? 1 : 0" @reply="prepareReply" @update-total-comments="totalComments += 1"/>
+          <RootComment v-for="comment in paginatedRootComments" :key="comment.id" :comment="comment" :indent-level="comment.parentID ? 1 : 0" @reply="prepareReply"
+                       @update-total-comments="totalComments += 1" @minus-total-comments="totalComments -= 1" @comment-deleted="handleCommentDeleted"/>
         </v-list>
         <v-pagination v-model="pagination.page" :length="Math.ceil(totalComments / rootCommentPageSize)" :total-visible="4"/>
       </v-col>
@@ -114,6 +114,10 @@ const paginatedRootComments = computed(() => {
         replies: commentReplies.value[comment.id] || []
       }));
 });
+
+const handleCommentDeleted = (commentId) => {
+  rootComments.value.items = rootComments.value.items.filter(c => c.id !== commentId);
+};
 </script>
 
 <style scoped>

@@ -66,7 +66,9 @@
 
   <!-- 根评论回复显示区 -->
   <div class="replies">
-    <ReplyComment v-for="reply in comment.replies" :key="reply.id" :reply="reply" @reply-added="handleReplyAdded" @update-total-comments="$emit('update-total-comments')" />
+    <ReplyComment v-for="reply in localReplies" :key="reply.id" :reply="reply" @reply-added="handleReplyAdded"
+                  @update-total-comments="$emit('update-total-comments')" @minus-total-comments="$emit('minus-total-comments')"
+                  @reply-deleted="handleReplyDeleted"/>
   </div>
 </template>
 
@@ -87,14 +89,11 @@ const props = defineProps({
   comment: Object,
 });
 
-
-
-
-// 删除评论
-const { deleteComment } = useDeleteComment()
-const deleteCommentHandler = () => {
-  deleteComment(props.comment.id)
-}
+const localReplies = ref([...props.comment.replies]);
+// 监听 props.comment.replies 变化，更新本地复制
+watch(() => props.comment.replies, (newReplies) => {
+  localReplies.value = [...newReplies];
+}, { deep: true });
 
 // 获取用户名称
 const username = ref('');
@@ -163,7 +162,7 @@ const onBlur = () => {
 
 // 添加对根评论的回复
 const { addComment } = useAddComment();
-const emit = defineEmits(['update-total-comments']);
+const emit = defineEmits(['update-total-comments', 'minus-total-comments', 'comment-deleted']);
 const submitComment = async () => {
   const newComment = await addComment({
     entryId: entryId.value,
@@ -174,14 +173,28 @@ const submitComment = async () => {
   });
 
   if (newComment) {
-    props.comment.replies.push(newComment);
+    localReplies.value.push(newComment);
     newRootCommentContent.value = '';
     emit('update-total-comments');
   }
 };
 
 const handleReplyAdded = (newReply) => {
-  props.comment.replies.push(newReply); // 更新回复列表
+  localReplies.value.push(newReply); // 更新回复列表
+};
+
+// 删除评论
+const { deleteComment } = useDeleteComment()
+const deleteCommentHandler = async () => {
+  const ok = await deleteComment(props.comment.id, true);
+  if(ok){
+    emit('minus-total-comments');
+    emit('comment-deleted', props.comment.id);
+  }
+}
+
+const handleReplyDeleted = (replyId) => {
+  localReplies.value = localReplies.value.filter(r => r.id !== replyId);
 };
 </script>
 

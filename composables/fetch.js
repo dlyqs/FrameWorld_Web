@@ -49,21 +49,23 @@ export function useUserInfo() {
 }
 
 export function useDeleteComment() {
-    const deleteComment = async (commentId) => {
+    const deleteComment = async (commentId, isRoot = false) => {
         if (confirm('Are you sure you want to delete this comment?')) {
             try {
-                await useFetch(`/api/frameworld/global_comments/${commentId}/delete_with_likes/`, {
+                const urls = isRoot ? `/api/frameworld/global_comments/${commentId}/delete_with_replies/` : `/api/frameworld/global_comments/${commentId}/delete_with_likes/`;
+                await useFetch(urls, {
                     method: 'DELETE'
                 });
+                return true;
 
-                alert('Comment and associated likes deleted successfully');
             } catch (error) {
                 console.error('Error deleting comment:', error);
                 alert('Failed to delete the comment');
+                return false;
             }
         }
+        return false;
     };
-
     return {
         deleteComment
     };

@@ -91,7 +91,7 @@ const onBlur = () => {
 };
 // 添加对根评论的回复
 const { addComment } = useAddComment();
-const emit = defineEmits(['reply-added', 'update-total-comments']);
+const emit = defineEmits(['reply-added', 'update-total-comments', 'minus-total-comments', 'reply-deleted']);
 const submitComment = async () => {
   const newReply = await addComment({
     entryId: entryId.value,
@@ -189,10 +189,14 @@ const handleToggleLike = async () => {
 };
 
 const { deleteComment } = useDeleteComment()
-
-const deleteCommentHandler = () => {
-  deleteComment(props.reply.id)
+const deleteCommentHandler = async () => {
+  const ok = await deleteComment(props.reply.id);
+  if(ok){
+    emit('minus-total-comments');
+    emit('reply-deleted', props.reply.id);
+  }
 }
+
 </script>
 
 <style scoped>

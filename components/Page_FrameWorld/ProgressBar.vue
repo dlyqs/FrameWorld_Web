@@ -28,6 +28,7 @@
       <v-btn class="btn-new-comment">+</v-btn>
     </div>
     <div class="controls-right">
+      <button @click="toggleFrameComments">{{ showFrameComments ? '隐藏评论' : '显示评论' }}</button>
       <v-btn icon="volume_up" variant="text"></v-btn>
       <v-btn icon="settings" variant="text"></v-btn>
       <v-btn icon="fullscreen" variant="text"></v-btn>
@@ -37,14 +38,14 @@
 
 <script setup>
 const props = defineProps({
-  entry: Object
+  entry: Object,
+  uniqueTimestamps: Array,
 });
 
 // Reactive states、Flags、DOM refs
 const entryId = ref(1); // 假设当前条目ID，后期动态获取
 const currentTime = ref(0); // 当前播放时间
 const progress = ref(0);
-const uniqueTimestamps = ref([]);
 const hoverPosition = ref(0);
 const hoverTime = ref(0);
 const snapRange = ref(20); // 设置吸附范围（秒）
@@ -62,6 +63,13 @@ const durationFormatted = computed(() => formatTime(props.entry?.length));
 const currentTimeFormatted = computed(() => formatTime(currentTime.value));
 const hoverTimeFormatted = computed(() => formatTime(hoverTime.value));
 
+const showFrameComments = ref(true);
+const emit = defineEmits(['update-time', 'toggle-comments']);
+const toggleFrameComments = () => {
+  showFrameComments.value = !showFrameComments.value;
+  emit('toggle-comments', showFrameComments.value);
+};
+
 function formatTime(timeInSeconds) {
   const hours = Math.floor(timeInSeconds / 3600);
   const minutes = Math.floor((timeInSeconds % 3600) / 60);
@@ -78,8 +86,38 @@ function seek(event) {
   const rect = progressBar.value.getBoundingClientRect();
   const x = Math.min(rect.width, Math.max(0, event.clientX - rect.left));
   const progressPercentage = x / rect.width;
+
+  let clickedTime = Math.floor(progressPercentage * maxProgress.value);
+
+  // Check for snap to nearest marker
+  let closestMarker = null;
+  let closestDistance = Infinity;
+  for (let timestamp of props.uniqueTimestamps) {
+    let markerPosition = (timestamp / maxProgress.value) * rect.width;
+    let distance = Math.abs(markerPosition - x);
+    if (distance < closestDistance) {
+      closestMarker = timestamp;
+      closestDistance = distance;
+    }
+  }
+
+  if (closestDistance <= snapRange.value * rect.width / maxProgress.value) {
+    // If close to a marker, snap to it
+    hoverTime.value = closestMarker;
+    hoverPosition.value = (closestMarker / maxProgress.value) * rect.width;
+    clickedTime = closestMarker; // Set the time to the closest marker
+  } else {
+    hoverTime.value = clickedTime;
+    hoverPosition.value = x;
+  }
+
+  currentTime.value = clickedTime;
   progress.value = progressPercentage * maxProgress.value;
-  updateCurrentTime(progressPercentage);
+  emit('update-time', currentTime.value);
+  const isAtMarker = props.uniqueTimestamps.includes(currentTime.value);
+  if (!isAtMarker) {
+    emit('update-time', null); // 发送 null 或特定信号以表示隐藏评论
+  }
 }
 
 function startDrag(event) {
@@ -137,7 +175,7 @@ function updateHoverPosition(event) {
   // Check for snap to marker
   let closestMarker = null;
   let closestDistance = Infinity;
-  for (let timestamp of uniqueTimestamps.value) {
+  for (let timestamp of props.uniqueTimestamps) {
     let markerPosition = timestamp * rect.width / maxProgress.value;
     let distance = Math.abs(markerPosition - x);
     if (distance < closestDistance) {
@@ -159,22 +197,6 @@ function updateHoverPosition(event) {
 watch(progress, (newProgress) => {
   currentTime.value = Math.floor(newProgress);// 当进度条变化更新 currentTime
 });
-
-// Initialization
-onMounted(async () => {
-  try {
-    const response = await fetch(`/api/frameworld/frame_comments/${entryId.value}/comments_for_entry`);
-    if (response.ok) {
-      const data = await response.json();
-      const timestamps = new Set(data.map(comment => Math.floor(comment.timestamp)));
-      uniqueTimestamps.value = [...timestamps];
-    } else {
-      console.error('Failed to fetch comments:', response.status);
-    }
-  } catch (error) {
-    console.error('Error fetching comments:', error);
-  }
-});
 </script>
 
 <style scoped>
@@ -184,23 +206,29 @@ onMounted(async () => {
   align-items: center;
   margin-top: 1rem;
 }
+
 .controls-left, .controls-center, .controls-right {
   flex: 1;
   display: flex;
   align-items: center;
 }
+
 .controls-left {
   justify-content: start;
 }
+
 .controls-center {
   justify-content: center;
 }
+
 .controls-right {
   justify-content: end;
 }
+
 .time-display {
   margin-left: 8px;
 }
+
 .custom-progress-bar {
   position: relative;
   margin: auto;
@@ -210,6 +238,7 @@ onMounted(async () => {
   background-color: #ccc;
   border-radius: 50%;
 }
+
 .custom-progress-bar::before {
   content: "";
   position: absolute;
@@ -220,6 +249,7 @@ onMounted(async () => {
   background-color: transparent; /* Keep it transparent or match the bar color depending on visual requirements */
   pointer-events: auto; /* Ensure it can register mouse events */
 }
+
 .progress-bar-foreground {
   position: absolute;
   left: 0;
@@ -227,6 +257,7 @@ onMounted(async () => {
   height: 100%;
   background-color: #ffcad4;
 }
+
 .progress-thumb {
   position: absolute;
   margin-top: 1px;
@@ -237,15 +268,18 @@ onMounted(async () => {
   cursor: pointer;
   opacity: 0; /* Start fully transparent */
 }
+
 .custom-progress-bar:hover .progress-thumb {
   transform: translateX(-50%) translateY(-50%) scale(1.0); /* Scale up when hovered */
   opacity: 1; /* Fully visible on hover */
 }
+
 .progress-bar-background {
   width: 100%;
   height: 100%;
   background-color: white;
 }
+
 .progress-marker {
   position: absolute;
   top: -3px; /* Adjust according to your design */
@@ -254,19 +288,22 @@ onMounted(async () => {
   background-color: lightgreen; /* Orange color for visibility */
   transform: translateX(-50%); /* Center the marker */
 }
+
 .btn-new-comment {
   background-color: white !important; /* 设置背景色为白色 */
   color: #f89898 !important; /* 设置文本颜色为粉色 */
   box-shadow: 2px 2px 0 #f89898; /* 设置右侧和下侧的窄阴影为粉色 */
   transition: all 0.3s ease; /* 过渡动画，让颜色变化更平滑 */
   margin: 0 auto; /* 水平居中 */
-  font-size: 2rem;  /* 设置字体大小和粗细 */
+  font-size: 2rem; /* 设置字体大小和粗细 */
 }
+
 .btn-new-comment:hover {
   background-color: #f89898 !important; /* 鼠标悬停时，背景变为粉色 */
   color: snow !important; /* 鼠标悬停时，文本颜色变为更深的粉色 */
-  box-shadow: none ; /* 鼠标悬停时，移除阴影 */
+  box-shadow: none; /* 鼠标悬停时，移除阴影 */
 }
+
 .hover-box {
   position: absolute;
   display: flex;
@@ -274,27 +311,31 @@ onMounted(async () => {
   align-items: center;
   z-index: 10;
 }
+
 .hover-time {
   position: absolute;
   bottom: 100%;
-  transform: translateY(-75%) ;
+  transform: translateY(-75%);
   background: rgba(0, 0, 0, 0.75);
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.75rem;
 }
+
 .hover-arrow-up, .hover-arrow-down {
   content: "";
   position: absolute;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
 }
+
 .hover-arrow-up {
   top: 100%;
   border-bottom: 5px solid rgba(0, 0, 0, 0.75);
   margin-top: 0.2rem;
 }
+
 .hover-arrow-down {
   bottom: 100%;
   border-top: 5px solid rgba(0, 0, 0, 0.75);

@@ -5,7 +5,8 @@
 </template>
 
 <script setup>
-// 这里可以导入视频处理逻辑
+const entryId = ref(1); // 假设当前条目ID，后期动态获取
+
 </script>
 
 <style scoped>

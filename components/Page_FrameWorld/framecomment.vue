@@ -2,123 +2,117 @@
   <v-container>
     <v-row class="comment-top">
       <v-col cols="auto">
-        <span class="header-title">评论 ({{ totalComments }})</span>
+        <span class="header-title">当前帧评论 ({{ totalComments }})</span>
       </v-col>
       <v-col cols="auto" class="sort-options">
         <span class="sort-option">最热</span> | <span class="sort-option">最新</span>
       </v-col>
     </v-row>
 
-    <!-- 根评论输入区域 -->
     <v-row>
       <v-col cols="12">
         <textarea class="root-new-comment" ref="textArea" v-model="newCommentContent"
-                  placeholder="发表评论..." :rows="rows" @input="handleInput" @focus="showActions = true"
-                  @blur="onBlur"></textarea>
+                  placeholder="在当前时间点发表评论..." :rows="rows" @input="handleInput"
+                  @focus="showActions = true" @blur="onBlur"></textarea>
         <div v-show="showActions" class="comment-actions">
           <v-btn class="pink_btn" @click="submitComment">提交</v-btn>
         </div>
       </v-col>
     </v-row>
 
-    <!-- 根评论显示区域 -->
     <v-row>
       <v-col cols="12">
         <v-list three-line>
-          <RootComment v-for="comment in paginatedRootComments" :key="comment.id" :comment="comment" :indent-level="comment.parentID ? 1 : 0" @reply="prepareReply"
-                       @update-total-comments="totalComments += 1" @minus-total-comments="totalComments -= 1" @comment-deleted="handleCommentDeleted"/>
+          <FrameCommentItem v-for="comment in paginatedComments" :key="comment.id" :comment="comment" :currentTimestamp="currentTimestamp"
+                            @comment-deleted="handleCommentDeleted" @update-total-comments="totalComments += 1" @reply-added="handleReplyAdded"/>
         </v-list>
-        <v-pagination v-model="pagination.page" :length="Math.ceil(totalComments / rootCommentPageSize)" :total-visible="4"/>
+        <v-pagination v-model="pagination.page" :length="Math.ceil(totalComments / pagination.itemsPerPage)" :total-visible="4"/>
       </v-col>
     </v-row>
   </v-container>
-</template>
+ </template>
 
 <script setup>
-import RootComment from './RootComment.vue';
+import FrameCommentItem from "./FrameCommentItem.vue";
 
-const rows = ref(2);        // 文本域的行数
-const entryId = ref(1);     // 假设当前条目ID，后期动态获取
+
+const props = defineProps({
+  currentTimestamp: Number,
+  uniqueTimestamps: Array
+});
+const rows = ref(2);
+const entryId = ref(1); // 假设当前条目ID，后期动态获取
 const totalComments = ref(0);
-const commentReplies = ref({});
+const frameComments = ref([]);
+const newCommentContent = ref('');
 const pagination = ref({ page: 1, itemsPerPage: 5 });
-const rootComments = ref({ items: [], total: 0 });
-const newCommentContent = ref('');    // 绑定的消息文本
-const showActions = ref(false);  // 控制动作区显示
-const user = useUser(); // 使用useUser hook获取当前用户信息
+const showActions = ref(false);
+const user = useUser();
+const isMarker = computed(() => props.uniqueTimestamps.includes(props.currentTimestamp));
 
 // 显示控制
 const handleInput = (event) => {
   const lines = event.target.value.split(/\r\n|\r|\n/).length;
-  rows.value = lines > 8 ? 8 : lines; // 限制最大行数为8
+  rows.value = lines > 8 ? 8 : lines;
 };
+
 const onBlur = () => {
   setTimeout(() => {
-    showActions.value = false;  // 当输入区域失去焦点时延迟隐藏动作区
+    showActions.value = false;
   }, 300);
 };
 
 // 添加根评论
-const { addComment } = useAddComment();
+const { addComment } = useAddComment(true);
 const submitComment = async () => {
   const newComment = await addComment({
     entryId: entryId.value,
     content: newCommentContent.value,
-    userID: user.value.id
+    userID: user.value.id,
+    timestamp: props.currentTimestamp
   });
   if (newComment) {
-    rootComments.value.items.push(newComment);
+    frameComments.value.push(newComment);
     totalComments.value += 1;
     newCommentContent.value = '';
   }
 };
 
 // 加载评论
-const loadComments = async () => {
-  if (process.client) {
-    const response = await useFetch(`/api/frameworld/global_comments/?entry=${entryId}`, {
-      method: 'GET',
-      key: 'comments'
-    });
-
-    if (response.error.value) {
-      console.error('Error fetching comments:', response.error.value);
+async function loadCommentsForTimestamp(timestamp) {
+  try {
+    const response = await fetch(`/api/frameworld/frame_comments/comments_for_timestamp?entry_id=${entryId.value}&timestamp=${timestamp}`);
+    if (response.ok) {
+      frameComments.value = await response.json();
+      totalComments.value = frameComments.value.length;
     } else {
-      const comments = response.data.value || [];
-      rootComments.value.items = comments.filter(comment => !comment.parentID);
-      totalComments.value = comments.length;
-      commentReplies.value = comments.reduce((acc, comment) => {
-        if (comment.parentID) {
-          if (!acc[comment.parentID]) acc[comment.parentID] = [];
-          acc[comment.parentID].push(comment);
-        }
-        return acc;
-      }, {});
+      console.error('Failed to load frame comments:', response.status);
     }
+  } catch (error) {
+    console.error('Error fetching frame comments:', error);
   }
-};
-onMounted(loadComments);
+}
 
-// 使用watchEffect来确保变化重新加载评论
-watchEffect(() => {
-  loadComments();
-});
+watch(() => props.currentTimestamp, (newTimestamp) => {
+  if (isMarker.value) {
+    loadCommentsForTimestamp(newTimestamp);
+  }
+}, { immediate: true });
 
 // 计算分页后的根评论
-const paginatedRootComments = computed(() => {
+const paginatedComments = computed(() => {
   const start = (pagination.value.page - 1) * pagination.value.itemsPerPage;
   const end = start + pagination.value.itemsPerPage;
-  return rootComments.value.items
-      .slice(start, end)
-      .map(comment => ({
-        ...comment,
-        replies: commentReplies.value[comment.id] || []
-      }));
+  return frameComments.value.slice(start, end);
 });
 
+// 处理回复被添加
+const handleReplyAdded = (newReply) => {
+  frameComments.value.push(newReply); // 更新回复列表
+};
 // 处理根评论被删除
 const handleCommentDeleted = (commentId) => {
-  rootComments.value.items = rootComments.value.items.filter(c => c.id !== commentId);
+  frameComments.value = frameComments.value.filter(c => c.id !== commentId);
 };
 </script>
 

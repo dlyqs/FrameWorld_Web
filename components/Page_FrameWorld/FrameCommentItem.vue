@@ -1,24 +1,22 @@
 <template>
-  <div class="reply-item">
+  <div class="comment-item">
+    <!-- 用户头像 -->
     <div class="avatar" :style="{ backgroundImage: 'url(' + userInfo?.avatar_url + ')' }"></div>
-    <div class="reply-content">
-      <div class="reply-title">{{ username || 'Loading...' }}</div>
+    <!-- 用户名称和评论内容 -->
+    <div class="comment-content">
+      <div class="comment-title">{{ username || 'Loading...' }}</div>
       <div class="reply-subtitle">
-        <template v-if="reply.parentID !== reply.replies">
-          回复 @{{ replyUsername }}: {{ reply.content }}
+        <template v-if="comment.replies">
+          回复 @{{ replyUsername }}:
         </template>
-        <template v-else>
-          {{ reply.content }}
-        </template>
+        <span>{{ comment.content }}</span>
       </div>
     </div>
   </div>
-  <!-- 信息操作区 -->
   <div class="comment-info">
-    <!-- 左侧元素 -->
     <div class="left-items">
       <!-- 时间显示 -->
-      <span>{{ displayTime(reply.time) }}</span>
+      <span>{{ displayTime(comment.time) }}</span>
 
       <!-- 点赞按钮和点赞数 -->
       <v-btn variant="text" @click="handleToggleLike">
@@ -42,16 +40,16 @@
       <v-btn variant="text" small @click="showReplyField = !showReplyField">回复</v-btn>
     </div>
 
-    <!-- 右侧元素 -->
     <div class="right-items">
+      <!-- 更多操作菜单 -->
       <v-menu>
         <template v-slot:activator="{ props }">
           <v-btn class="btn_more" v-bind="props" color="grey" icon="more_horiz" variant="text"></v-btn>
         </template>
         <v-list class="list_more">
-          <v-list-item class="list_item_more" @click="copyMessage" title="Copy" prepend-icon="content_copy"></v-list-item>
+          <v-list-item @click="copyMessage" title="Copy" prepend-icon="content_copy"></v-list-item>
           <!-- 条件显示删除按钮 -->
-          <v-list-item v-if="user.id === reply.user" @click="deleteCommentHandler" title="Delete" prepend-icon="delete"></v-list-item>
+          <v-list-item v-if="user.id === comment.user" @click="deleteCommentHandler" title="Delete" prepend-icon="delete"></v-list-item>
         </v-list>
       </v-menu>
       <v-snackbar v-model="snackbar" :timeout="2000">
@@ -59,31 +57,35 @@
       </v-snackbar>
     </div>
   </div>
+
+  <!-- 评论回复区 -->
   <div v-if="showReplyField" class="reply-field">
-    <textarea class="root-new-comment" ref="textArea" v-model="newReplyCommentContent"
+    <textarea class="root-new-comment" ref="textArea" v-model="newRootCommentContent"
               placeholder="发表评论..." :rows="rows" @input="handleInput" @focus="showActions = true"
               @blur="onBlur"></textarea>
     <div v-show="showActions" class="comment-actions">
       <v-btn class="pink_btn" @click="submitComment">提交</v-btn>
     </div>
   </div>
+
 </template>
 
 <script setup>
-import { formatDistanceToNow, parseISO } from 'date-fns';
 import copy from 'copy-to-clipboard';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 
 const props = defineProps({
-  reply: Object
+  comment: Object,
+  currentTimestamp: Number,
 });
-const rows = ref(2);        // 文本域的行数
-const entryId = ref(1); // 假设当前条目ID，后期动态获取
+const rows = ref(2);                    // 文本域的行数
+const entryId = ref(1);                 // 假设当前条目ID，后期动态获取
 const snackbarText = ref('');
-const newReplyCommentContent = ref('');    // 绑定的消息文本
+const newRootCommentContent = ref('');  // 绑定的消息文本
 const snackbar = ref(false);
-const showActions = ref(false);  // 控制动作区显示
+const showActions = ref(false);         // 控制动作区显示
 const showReplyField = ref(false);
-const user = useUser(); // 使用useUser hook获取当前用户信息
+const user = useUser();                 // 使用useUser hook获取当前用户信息
 
 // 显示控制
 const displayTime = (time) => {         // 动态显示评论时间
@@ -105,15 +107,14 @@ const handleInput = (event) => {
 
 const onBlur = () => {
   setTimeout(() => {
-    showActions.value = false;          // 当输入区域失去焦点时延迟隐藏动作区
+    showActions.value = false;          // 输入区域失去焦点时延迟隐藏动作区
   }, 500);
 };
 
-// 调用获取用户、评论者名称
+// 获取用户及回复对象名称
 const username = ref('');
 const replyUsername = ref('');
 const { fetchUsername } = useFetchUsername();
-
 const fetchReplyComment = async (replyId) => {
   if (replyId) {
     const { data, error } = await useFetch(`/api/frameworld/global_comments/?id=${replyId}`);//获取回复对象的id
@@ -126,34 +127,28 @@ const fetchReplyComment = async (replyId) => {
     }
   }
 };
-
 watchEffect(() => {
-  if (props.reply && props.reply.user) {
-    fetchUsername(props.reply.user, (name) => {
+  if (props.comment && props.comment.user) {
+    fetchUsername(props.comment.user, (name) => {
       username.value = name;
     });
-  }
-});
-
-watchEffect(() => {
-  if (props.reply.parentID !== props.reply.replies) {
-    fetchReplyComment(props.reply.replies);
+    if (props.comment.replies) {
+      fetchReplyComment(props.comment.replies);
+    }
   }
 });
 
 // 获取用户头像等信息
 const { userInfo, error, fetchUserInfo } = useUserInfo();
-
 onMounted(async () => {
-  await fetchUserInfo(props.reply.user);
+  await fetchUserInfo(props.comment.user);
 });
 
 // 获取用户对点赞记录、及点赞操作
-const localPopularity = ref(props.reply.popularity);
-const { userHasLiked, fetchLikeStatus, toggleLike } = useCommentLike(props.reply.id, user.value.id, localPopularity);
-
+const localPopularity = ref(props.comment.popularity);
+const { userHasLiked, fetchLikeStatus, toggleLike } = useCommentLike(props.comment.id, user.value.id, localPopularity,true);
 onMounted(async ()=> {
-  if (props.reply && props.reply.id) {
+  if (props.comment && props.comment.id) {
     fetchLikeStatus();
   }
 });
@@ -164,48 +159,55 @@ const handleToggleLike = async () => {
   localPopularity.value += delta;
 };
 
-// 添加对根评论的回复
-const { addComment } = useAddComment();
-const emit = defineEmits(['reply-added', 'update-total-comments', 'minus-total-comments', 'reply-deleted']);
+const emit = defineEmits(['update-total-comments', 'comment-deleted','reply-added']);
+// 添加对评论的回复
+const { addComment } = useAddComment(true);
 const submitComment = async () => {
-  const newReply = await addComment({
+  const newComment = await addComment({
     entryId: entryId.value,
-    content: newReplyCommentContent.value,
-    parentID: props.reply.parentID,
-    replies: props.reply.id,
-    userID: user.value.id
+    content: newRootCommentContent.value,
+    replies: props.comment.id,
+    userID: user.value.id,
+    timestamp: props.currentTimestamp
   });
-
-  if (newReply) {
-    emit('reply-added', newReply);
+  if (newComment) {
+    emit('reply-added', newComment);
     emit('update-total-comments');
-    newReplyCommentContent.value = '';
+    newRootCommentContent.value = '';
   }
 };
-
-// 删除回复
-const { deleteComment } = useDeleteComment()
+// 删除评论
+const { deleteComment } = useDeleteComment(true)
 const deleteCommentHandler = async () => {
-  const ok = await deleteComment(props.reply.id);
+  const ok = await deleteComment(props.comment.id);
   if(ok){
-    emit('minus-total-comments');
-    emit('reply-deleted', props.reply.id);
+    emit('comment-deleted', props.comment.id);
   }
 }
+
 </script>
 
 <style scoped>
-.reply-item {
+.comment-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  margin-left: 1rem;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+/* 回复列表的样式 */
+.replies {
+  margin-left: 2rem;
+  margin-bottom: 2rem;
+  background-color: #f9f9f9; /* 回复背景稍微有点区分 */
+  border-radius: 1rem;
 }
 
 .avatar {
-  margin-top: 0.8rem;
-  width: 32px;  /* 设置头像宽度 */
-  height: 32px;  /* 设置头像高度 */
+  margin-left: 4px;
+  margin-top: 2px;
+  width: 40px;  /* 设置头像宽度 */
+  height: 40px;  /* 设置头像高度 */
   border-radius: 50%;  /* 圆形头像 */
   background-position: center;  /* 确保背景图片居中显示 */
   background-size: cover;  /* cover 确保图片完全覆盖容器区域，同时保持图片的长宽比 */
@@ -213,32 +215,21 @@ const deleteCommentHandler = async () => {
   overflow: hidden;  /* 隐藏容器外的背景图部分 */
   border: 2px solid #fff;  /* 可选：为头像添加边框 */
 }
-
-.reply-content {
+.comment-content {
   flex: 1;
-  margin-top: 0.6rem;
 }
 
-.reply-title, .reply-subtitle {
+.comment-title, .comment-subtitle {
   margin: 0;
 }
-.btn_more{
-  margin: .5rem;
-  justify-items: flex-end;
+
+.reply-field input {
+  margin-right: 5px;
 }
-.list_more{
-  margin: .5rem;
-  border-radius: 1rem !important;
-}
-.list_item_more{
-  margin: 5px;
-}
-.list_item_more:hover{
-  border-radius: 1rem;
-}
+
 .comment-info{
-  margin-left: 1.2rem;
-  margin-top: -1rem;
+  margin-left: 0.6rem;
+  margin-top: -0.6rem;
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -7,6 +7,7 @@ export const STORAGE_KEY = {
   USER_INFO: 'user_extra_info',
   USERNAME: 'username',
   USER_LIKE_STATUS: 'userLikeStatus',
+  USER_FRAME_LIKE_STATUS: "userFrameLikeStatus",
 }
 
 export const MODELS = {

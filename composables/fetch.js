@@ -48,12 +48,12 @@ export function useUserInfo() {
     };
 }
 
-export function useDeleteComment() {
-    const deleteComment = async (commentId, isRoot = false) => {
+export function useDeleteComment(isFrameComment = false) {
+    const deleteComment = async (commentId) => {
         if (confirm('Are you sure you want to delete this comment?')) {
             try {
-                const urls = isRoot ? `/api/frameworld/global_comments/${commentId}/delete_with_replies/` : `/api/frameworld/global_comments/${commentId}/delete_with_likes/`;
-                await useFetch(urls, {
+                const url = isFrameComment ? `/api/frameworld/frame_comments/${commentId}/delete_frame_comment/` : `/api/frameworld/global_comments/${commentId}/delete_global_comment/`;
+                await useFetch(url, {
                     method: 'DELETE'
                 });
                 return true;
@@ -87,32 +87,29 @@ export function useFetchUsername() {
     return { fetchUsername };
 }
 
-export function useCommentLike(commentId, userId, localPopularity) {
+export function useCommentLike(commentId, userId, localPopularity, isFrameComment = false) {
     const userHasLiked = ref(false);
-    const recordExists = ref(false);
     const recordId = ref('');
+    const storageKey = isFrameComment ? STORAGE_KEY.USER_FRAME_LIKE_STATUS : STORAGE_KEY.USER_LIKE_STATUS;
+    const url = isFrameComment ? `/api/frameworld/frame_like_records/` : `/api/frameworld/like_records/`;
 
     const fetchLikeStatus = async () => {
-        let status = get(STORAGE_KEY.USER_LIKE_STATUS);
+        let status = get(storageKey);
         if (status && status.commentId === commentId) {
             userHasLiked.value = status.userHasLiked;
-            recordExists.value = status.recordExists;
             recordId.value = status.recordId;
         } else {
-            const { data, error } = await useFetch(`/api/frameworld/like_records/?comment=${commentId}&user=${userId}`);
+            const { data, error } = await useFetch(`${url}?comment=${commentId}&user=${userId}`);
             if (!error.value && data.value.length > 0) {
                 userHasLiked.value = data.value[0].status;
-                recordExists.value = true;
                 recordId.value = data.value[0].id;
             } else {
                 userHasLiked.value = false;
-                recordExists.value = false;
                 recordId.value = '';
             }
-            set(STORAGE_KEY.USER_LIKE_STATUS, {
+            set(storageKey, {
                 commentId,
                 userHasLiked: userHasLiked.value,
-                recordExists: recordExists.value,
                 recordId: recordId.value
             });
         }
@@ -122,8 +119,9 @@ export function useCommentLike(commentId, userId, localPopularity) {
         const delta = userHasLiked.value ? -1 : 1;
         const newPopularity = localPopularity.value + delta;
 
+        const commentUpdateUrl = isFrameComment ? `/api/frameworld/frame_comments/${commentId}/` : `/api/frameworld/global_comments/${commentId}/`;
         try {
-            await useFetch(`/api/frameworld/global_comments/${commentId}/`, {
+            await useFetch(commentUpdateUrl, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ popularity: newPopularity })
@@ -131,24 +129,29 @@ export function useCommentLike(commentId, userId, localPopularity) {
 
             userHasLiked.value = !userHasLiked.value;
 
-            const method = recordExists.value ? 'PATCH' : 'POST';
-            const url = recordExists.value ? `/api/frameworld/like_records/${recordId.value}/` : `/api/frameworld/like_records/`;
-            const recordData = {
-                comment: commentId,
-                user: userId,
-                status: userHasLiked.value
-            };
-
-            const response = await useFetch(url, {
-                method,
+            const { data, error } = await useFetch(`${url}handle-like/`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(recordData)
+                body: JSON.stringify({
+                    comment: commentId,
+                    user: userId,
+                    status: userHasLiked.value
+                })
             });
 
-            if (!recordExists.value && response.data) {
-                recordExists.value = true;
-                recordId.value = response.data.id;
+            if (error) {
+                throw new Error('Failed to update like record');
             }
+
+            if (data && data.id) {
+                recordId.value = data.id;
+            }
+
+            set(storageKey, {
+                commentId,
+                userHasLiked: userHasLiked.value,
+                recordId: recordId.value
+            });
         } catch (error) {
             console.error('Error updating like status:', error);
         }
@@ -161,11 +164,11 @@ export function useCommentLike(commentId, userId, localPopularity) {
     };
 }
 
-export function useAddComment() {
+export function useAddComment(isFrame = false) {
     const isSubmitting = ref(false);
     const errorMessage = ref('');
 
-    const addComment = async ({ entryId, content, parentID = "", replies = "", userID }) => {
+    const addComment = async ({ entryId, content, parentID = "", replies = "", userID, timestamp = "", x_position = "", y_position = "" }) => {
         isSubmitting.value = true;
         errorMessage.value = '';
 
@@ -176,7 +179,17 @@ export function useAddComment() {
             return null;
         }
 
-        const commentData = {
+        const commentData = isFrame ? {
+            entry: entryId,
+            time: new Date().toISOString(),
+            timestamp: timestamp,
+            content: content,
+            replies: replies,
+            popularity: 0,
+            user: userID,
+            x_position:x_position,
+            y_position:y_position
+        } : {
             entry: entryId,
             time: new Date().toISOString(),
             content: content,
@@ -186,8 +199,10 @@ export function useAddComment() {
             user: userID
         };
 
+        const url = isFrame ? '/api/frameworld/frame_comments/' : '/api/frameworld/global_comments/';
+
         try {
-            const { data, error } = await useFetch('/api/frameworld/global_comments/', {
+            const { data, error } = await useFetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -77,20 +77,44 @@ import copy from 'copy-to-clipboard';
 import ReplyComment from './ReplyComment.vue';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 
-
-// 评论回复区域
-const user = useUser();                 // 使用useUser hook获取当前用户信息
-const entryId = ref(1);                 // 假设当前条目ID，后期动态获取
-const rows = ref(2);                    // 文本域的行数
-const showActions = ref(false);         // 控制动作区显示
-const newRootCommentContent = ref('');  // 绑定的消息文本
-
 const props = defineProps({
   comment: Object,
 });
+const rows = ref(2);                    // 文本域的行数
+const entryId = ref(1);                 // 假设当前条目ID，后期动态获取
+const snackbarText = ref('');
+const newRootCommentContent = ref('');  // 绑定的消息文本
+const snackbar = ref(false);
+const showActions = ref(false);         // 控制动作区显示
+const showReplyField = ref(false);
+const user = useUser();                 // 使用useUser hook获取当前用户信息
 
+// 显示控制
+const displayTime = (time) => {         // 动态显示评论时间
+  const now = new Date();
+  const commentTime = parseISO(time);
+  return formatDistanceToNow(commentTime, {addSuffix: true});
+};
+
+const copyMessage = () => {             // 复制消息内容并显示提示
+  copy(props.comment.content);
+  snackbarText.value = 'Copied!';
+  snackbar.value = true;
+};
+
+const handleInput = (event) => {
+  const lines = event.target.value.split(/\r\n|\r|\n/).length;
+  rows.value = lines > 8 ? 8 : lines;   // 自动增长输入区，限制最大行数为8
+};
+
+const onBlur = () => {
+  setTimeout(() => {
+    showActions.value = false;          // 输入区域失去焦点时延迟隐藏动作区
+  }, 500);
+};
+
+// 监听 props.comment.replies 变化，更新本地响应式复制
 const localReplies = ref([...props.comment.replies]);
-// 监听 props.comment.replies 变化，更新本地复制
 watch(() => props.comment.replies, (newReplies) => {
   localReplies.value = [...newReplies];
 }, { deep: true });
@@ -106,11 +130,6 @@ watchEffect(() => {
     });
   }
 });
-
-// comment-info区域
-const showReplyField = ref(false);
-const snackbar = ref(false);
-const snackbarText = ref('');
 
 // 获取用户头像等信息
 const { userInfo, error, fetchUserInfo } = useUserInfo();
@@ -131,33 +150,6 @@ const handleToggleLike = async () => {
   toggleLike();
   const delta = userHasLiked.value ? -1 : 1;
   localPopularity.value += delta;
-};
-
-// 动态显示评论时间
-const displayTime = (time) => {
-  const now = new Date();
-  const commentTime = parseISO(time);
-  return formatDistanceToNow(commentTime, {addSuffix: true});
-};
-
-// 复制消息内容并显示提示
-const copyMessage = () => {
-  copy(props.comment.content);
-  snackbarText.value = 'Copied!';
-  snackbar.value = true;
-};
-
-// 回复输入框行数变化
-const handleInput = (event) => {
-  const lines = event.target.value.split(/\r\n|\r|\n/).length;
-  rows.value = lines > 8 ? 8 : lines; // 限制最大行数为8
-};
-
-// 输入区域失去焦点时延迟隐藏动作区
-const onBlur = () => {
-  setTimeout(() => {
-    showActions.value = false;
-  }, 500);  // 延迟500毫秒后隐藏
 };
 
 // 添加对根评论的回复
@@ -183,10 +175,10 @@ const handleReplyAdded = (newReply) => {
   localReplies.value.push(newReply); // 更新回复列表
 };
 
-// 删除评论
+// 删除根评论
 const { deleteComment } = useDeleteComment()
 const deleteCommentHandler = async () => {
-  const ok = await deleteComment(props.comment.id, true);
+  const ok = await deleteComment(props.comment.id);
   if(ok){
     emit('minus-total-comments');
     emit('comment-deleted', props.comment.id);
@@ -194,7 +186,7 @@ const deleteCommentHandler = async () => {
 }
 
 const handleReplyDeleted = (replyId) => {
-  localReplies.value = localReplies.value.filter(r => r.id !== replyId);
+  localReplies.value = localReplies.value.filter(r => r.id !== replyId); // 处理回复删除信号
 };
 </script>
 

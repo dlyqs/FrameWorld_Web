@@ -25,7 +25,7 @@
       <div class="time-display">{{ currentTimeFormatted }} / {{ durationFormatted }}</div>
     </div>
     <div class="controls-center">
-      <v-btn class="btn-new-comment">+</v-btn>
+      <v-btn class="btn-new-comment" @click="newframecomment">+</v-btn>
     </div>
     <div class="controls-right">
       <button @click="toggleFrameComments">{{ showFrameComments ? '隐藏评论' : '显示评论' }}</button>
@@ -64,7 +64,7 @@ const currentTimeFormatted = computed(() => formatTime(currentTime.value));
 const hoverTimeFormatted = computed(() => formatTime(hoverTime.value));
 
 const showFrameComments = ref(true);
-const emit = defineEmits(['update-time', 'toggle-comments']);
+const emit = defineEmits(['update-time', 'toggle-comments','open-comment-card']);
 const toggleFrameComments = () => {
   showFrameComments.value = !showFrameComments.value;
   emit('toggle-comments', showFrameComments.value);
@@ -114,10 +114,6 @@ function seek(event) {
   currentTime.value = clickedTime;
   progress.value = progressPercentage * maxProgress.value;
   emit('update-time', currentTime.value);
-  const isAtMarker = props.uniqueTimestamps.includes(currentTime.value);
-  if (!isAtMarker) {
-    emit('update-time', null); // 发送 null 或特定信号以表示隐藏评论
-  }
 }
 
 function startDrag(event) {
@@ -197,6 +193,11 @@ function updateHoverPosition(event) {
 watch(progress, (newProgress) => {
   currentTime.value = Math.floor(newProgress);// 当进度条变化更新 currentTime
 });
+
+function newframecomment() {
+  emit('open-comment-card', true);
+  emit('update-time', currentTime.value);
+}
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <template>
   <div class="reply-item">
-    <div class="avatar" :style="{ backgroundImage: 'url(' + userInfo?.avatar_url + ')' }"></div>
+    <div v-if="userInfo && userInfo.avatar_url" class="avatar" :style="{ backgroundImage: 'url(' + userInfo?.avatar_url + ')' }"></div>
     <div class="reply-content">
       <div class="reply-title">{{ username || 'Loading...' }}</div>
       <div class="reply-subtitle">

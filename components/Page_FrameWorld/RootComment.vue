@@ -1,7 +1,7 @@
 <template>
   <div class="comment-item">
     <!-- 用户头像 -->
-    <div class="avatar" :style="{ backgroundImage: 'url(' + userInfo?.avatar_url + ')' }"></div>
+    <div v-if="userInfo && userInfo.avatar_url" class="avatar" :style="{ backgroundImage: 'url(' + userInfo?.avatar_url + ')' }"></div>
     <!-- 用户名称和评论内容 -->
     <div class="comment-content">
       <div class="comment-title">{{ username || 'Loading...' }}</div>

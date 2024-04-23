@@ -1,8 +1,8 @@
 <template>
   <div class="main-container" ref="vantaRef">
-    <div class="main-field" @mouseenter="showControls" @mouseleave="delayedHideControls">
+    <div class="main-field">
       <div class="displayer-up">
-        <VideoDisplay />
+        <VideoDisplay :currentTime="currentTime"/>
         <framecomment v-if="showFrameComments && isAtMarker" class="frame-comments" :currentTimestamp="currentTimestamp" :uniqueTimestamps="uniqueTimestamps"/>
         <!-- 评论卡片 -->
         <transition name="fade">
@@ -17,10 +17,10 @@
           </div>
         </transition>
       </div>
-      <div class="displayer-bottom" ref="controlsRef">
-        <ProgressBar :entry="entry" :uniqueTimestamps="uniqueTimestamps" @update-time="setCurrentTime"
-                     @toggle-comments="handleToggleComments" @open-comment-card="toggleCommentCard"/>
-      </div>
+    </div>
+    <div class="displayer-control">
+      <ProgressBar :entry="entry" :uniqueTimestamps="uniqueTimestamps" @update-time="setCurrentTime"
+                   @toggle-comments="handleToggleComments" @open-comment-card="toggleCommentCard" @new-comment="handlenewcomment"/>
     </div>
     <div class="comments-section">
       <Comment/>
@@ -45,14 +45,19 @@ const props = defineProps({
 const uniqueTimestamps = ref([]);// 进度条评论标记点
 let hideTimeout = null;// 用于延迟隐藏的定时器
 const currentTimestamp = ref(0);
+const currentTime = ref(0);
 const setCurrentTime = (time) => {
   currentTimestamp.value = time;
+  currentTime.value = time;
 };
 
 const showFrameComments = ref(true);
 
 const handleToggleComments = (visible) => {
   showFrameComments.value = visible;
+};
+const handlenewcomment = (time) => {
+  uniqueTimestamps.value.push(time);
 };
 
 const isAtMarker = computed(() => {
@@ -94,7 +99,6 @@ const onBlur = () => {
 // 添加根评论
 const newCommentContent = ref('');
 const { addComment } = useAddComment(true);
-console.log('currentTimestamp', currentTimestamp.value)
 const submitComment = async () => {
   const newComment = await addComment({
     entryId: entryId.value,
@@ -163,23 +167,29 @@ onMounted(async () => {
   height: auto;
 }
 .main-field {
-  width: 877px;
-  height: 580px;
+  width: 925px;
+  height: 500px;
   backdrop-filter: blur(50px);
-  border-radius: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   overflow: hidden;
+  flex-direction: column;
+  display: flex;
   margin-top: 1rem;
+  border-radius: 20px 20px 0 0;
 }
 .displayer-up {
-  position: relative;
-  height: 85%;
+  position: absolute;
+  width: 100%; /* 充满整个宽度 */
+  height: 100%; /* 充满整个高度 */
 }
-.displayer-bottom {
-  height: 15%;
-  background-image: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+.displayer-control {
+  width: 925px;
+  height: auto;
+  background-color: rgba(255, 255, 255, 0.8);
   position: relative;
   padding: 10px;
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 .frame-comments {
   position: absolute; /* 绝对定位，覆盖在视频播放区域上 */
@@ -192,13 +202,13 @@ onMounted(async () => {
   background-color: rgba(0, 0, 0, 0.5); /* 可选：添加半透明背景增强可读性 */
 }
 .comments-section {
+  width: 925px;
   padding: 2rem;
   margin-top: 20px;
   background-color: #fff; /* 根据需要调整 */
   height: auto;
   margin-left: auto; /* 自动计算左边距 */
   margin-right: auto; /* 自动计算右边距 */
-  width: 877px;
   backdrop-filter: blur(20px);
   border-radius: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -276,4 +286,5 @@ onMounted(async () => {
   color: snow !important; /* 鼠标悬停时，文本颜色变为更深的粉色 */
   box-shadow: none ; /* 鼠标悬停时，移除阴影 */
 }
+
 </style>

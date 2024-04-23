@@ -106,6 +106,7 @@ const handleReplyAdded = (newReply) => {
   frameComments.value.push(newReply); // 更新回复列表
 };
 // 处理根评论被删除
+const emit = defineEmits(['comment-deleted']);
 const handleCommentDeleted = (commentId) => {
   frameComments.value = frameComments.value.filter(c => c.id !== commentId);
 };
@@ -120,10 +121,10 @@ const handleCommentDeleted = (commentId) => {
   justify-content: space-between;
   align-items: center;
   z-index: 1;
-  padding: 16px;
+  padding: 0.5rem 2rem 0.3rem 2rem;
 }
 .comment-bottom{
-  padding: 16px;
+  padding: 0 5rem 0 5rem;
 }
 .header-title {
   font-size: 1.2rem;
@@ -227,6 +228,5 @@ const handleCommentDeleted = (commentId) => {
 ::-webkit-scrollbar-thumb:hover,
 ::-webkit-scrollbar-thumb:active {
   background-color: rgba(128, 128, 128, 0.6); /* 鼠标悬浮或拖动时不透明 */
-
 }
 </style>

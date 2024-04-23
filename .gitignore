@@ -7,5 +7,7 @@ node_modules
 .idea
 dist
 .temp
+static
+public/videos
 yarn.lock
 package-lock.json

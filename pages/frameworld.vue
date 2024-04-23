@@ -217,7 +217,6 @@ const formattedTime = computed(() => {
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
 }
-
 .nav-goto {
   align-items: center;
   display: flex;
@@ -376,5 +375,29 @@ const formattedTime = computed(() => {
   text-align: center;
   font-size: 1rem;
   color: #666;
+}
+/* 针对所有滚动条 */
+::-webkit-scrollbar {
+  width: .5rem;
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.3);
+  --tw-border-opacity: 1;
+  border-radius: 9999px;
+  border-width: 1px;
+  transition: background-color 0.3s ease;
+  height: 40px; /* 固定高度 */
+}
+
+/* 滚动条轨道 */
+::-webkit-scrollbar-track {
+  background-color: transparent;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background-color: rgba(128, 128, 128, 0.6); /* 鼠标悬浮或拖动时不透明 */
 }
 </style>

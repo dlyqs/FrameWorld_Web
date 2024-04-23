@@ -6,7 +6,7 @@
       <div v-for="timestamp in uniqueTimestamps" :key="timestamp" class="progress-marker" :style="{left: calculateMarkerPosition(timestamp)}"></div>
     </div>
     <div class="progress-thumb" :style="{left: thumbPosition}" @mousedown="startDrag" @mouseenter="showThumb" @mouseleave="hideThumb">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 100%; transform: translate3d(0px, 0px, 0px);">
+      <svg viewBox="0 0 24 24" width="24" height="24" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 100%; transform: translate3d(0px, 0px, 0px);">
         <defs><clipPath id="__lottie_element_55"><rect width="24" height="24" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_55)"><g transform="matrix(0.9883429408073425,-0.7275781631469727,0.6775955557823181,0.920446515083313,7.3224687576293945,-0.7606706619262695)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(0.9937776327133179,-0.11138220876455307,0.11138220876455307,0.9937776327133179,-2.5239999294281006,1.3849999904632568)"><path fill="rgb(51,51,51)" fill-opacity="1" d=" M0.75,-1.25 C0.75,-1.25 0.75,1.25 0.75,1.25 C0.75,1.663925051689148 0.4139249920845032,2 0,2 C0,2 0,2 0,2 C-0.4139249920845032,2 -0.75,1.663925051689148 -0.75,1.25 C-0.75,1.25 -0.75,-1.25 -0.75,-1.25 C-0.75,-1.663925051689148 -0.4139249920845032,-2 0,-2 C0,-2 0,-2 0,-2 C0.4139249920845032,-2 0.75,-1.663925051689148 0.75,-1.25z"></path></g></g><g transform="matrix(1.1436611413955688,0.7535901665687561,-0.6317168474197388,0.9587040543556213,16.0070743560791,2.902894973754883)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(0.992861807346344,0.1192704513669014,-0.1192704513669014,0.992861807346344,-2.5239999294281006,1.3849999904632568)"><path fill="rgb(51,51,51)" fill-opacity="1" d=" M0.75,-1.25 C0.75,-1.25 0.75,1.25 0.75,1.25 C0.75,1.663925051689148 0.4139249920845032,2 0,2 C0,2 0,2 0,2 C-0.4139249920845032,2 -0.75,1.663925051689148 -0.75,1.25 C-0.75,1.25 -0.75,-1.25 -0.75,-1.25 C-0.75,-1.663925051689148 -0.4139249920845032,-2 0,-2 C0,-2 0,-2 0,-2 C0.4139249920845032,-2 0.75,-1.663925051689148 0.75,-1.25z"></path></g></g><g transform="matrix(1,0,0,1,8.890999794006348,8.406000137329102)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0.09099999815225601,1.1009999513626099)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M7,-3 C7,-3 7,3 7,3 C7,4.379749774932861 5.879749774932861,5.5 4.5,5.5 C4.5,5.5 -4.5,5.5 -4.5,5.5 C-5.879749774932861,5.5 -7,4.379749774932861 -7,3 C-7,3 -7,-3 -7,-3 C-7,-4.379749774932861 -5.879749774932861,-5.5 -4.5,-5.5 C-4.5,-5.5 4.5,-5.5 4.5,-5.5 C5.879749774932861,-5.5 7,-4.379749774932861 7,-3z"></path><path stroke-linecap="butt" stroke-linejoin="miter" fill-opacity="0" stroke-miterlimit="4" stroke="rgb(51,51,51)" stroke-opacity="1" stroke-width="1.5" d=" M7,-3 C7,-3 7,3 7,3 C7,4.379749774932861 5.879749774932861,5.5 4.5,5.5 C4.5,5.5 -4.5,5.5 -4.5,5.5 C-5.879749774932861,5.5 -7,4.379749774932861 -7,3 C-7,3 -7,-3 -7,-3 C-7,-4.379749774932861 -5.879749774932861,-5.5 -4.5,-5.5 C-4.5,-5.5 4.5,-5.5 4.5,-5.5 C5.879749774932861,-5.5 7,-4.379749774932861 7,-3z"></path></g></g><g transform="matrix(1,0,0,1,8.89900016784668,8.083999633789062)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,-2.5239999294281006,1.3849999904632568)"><path fill="rgb(51,51,51)" fill-opacity="1" d=" M0.875,-1.125 C0.875,-1.125 0.875,1.125 0.875,1.125 C0.875,1.607912540435791 0.48291251063346863,2 0,2 C0,2 0,2 0,2 C-0.48291251063346863,2 -0.875,1.607912540435791 -0.875,1.125 C-0.875,1.125 -0.875,-1.125 -0.875,-1.125 C-0.875,-1.607912540435791 -0.48291251063346863,-2 0,-2 C0,-2 0,-2 0,-2 C0.48291251063346863,-2 0.875,-1.607912540435791 0.875,-1.125z"></path></g></g><g transform="matrix(1,0,0,1,14.008999824523926,8.083999633789062)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,-2.5239999294281006,1.3849999904632568)"><path fill="rgb(51,51,51)" fill-opacity="1" d=" M0.8999999761581421,-1.100000023841858 C0.8999999761581421,-1.100000023841858 0.8999999761581421,1.100000023841858 0.8999999761581421,1.100000023841858 C0.8999999761581421,1.596709966659546 0.4967099726200104,2 0,2 C0,2 0,2 0,2 C-0.4967099726200104,2 -0.8999999761581421,1.596709966659546 -0.8999999761581421,1.100000023841858 C-0.8999999761581421,1.100000023841858 -0.8999999761581421,-1.100000023841858 -0.8999999761581421,-1.100000023841858 C-0.8999999761581421,-1.596709966659546 -0.4967099726200104,-2 0,-2 C0,-2 0,-2 0,-2 C0.4967099726200104,-2 0.8999999761581421,-1.596709966659546 0.8999999761581421,-1.100000023841858z"></path></g></g></g>
       </svg>
     </div>
@@ -18,21 +18,22 @@
   </div>
   <!-- 控制按钮行 -->
   <div class="controls-row">
-    <div class="controls-left">
-      <v-btn @click="togglePlayPause" variant="text">
-        <v-icon>{{ isPlaying ? 'pause' : 'play_arrow' }}</v-icon>
-      </v-btn>
-      <div class="time-display">{{ currentTimeFormatted }} / {{ durationFormatted }}</div>
-    </div>
-    <div class="controls-center">
-      <v-btn class="btn-new-comment" @click="newframecomment">+</v-btn>
-    </div>
-    <div class="controls-right">
-      <button @click="toggleFrameComments">{{ showFrameComments ? '隐藏评论' : '显示评论' }}</button>
-      <v-btn icon="volume_up" variant="text"></v-btn>
-      <v-btn icon="settings" variant="text"></v-btn>
-      <v-btn icon="fullscreen" variant="text"></v-btn>
-    </div>
+    <div class="header-title">共{{ addcommentsuser }}个用户，发布{{ totalframeComments }}条帧评论</div>
+    <!-- 隐藏/显示评论按钮，使用SVG图案 -->
+    <button class="toggle-comments-btn" @click="toggleFrameComments">
+      <svg v-if="showFrameComments" class="icon-hide-comments" xmlns="http://www.w3.org/2000/svg" data-pointer="none" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M11.989 4.828c-.47 0-.975.004-1.515.012l-1.71-2.566a1.008 1.008 0 0 0-1.678 1.118l.999 1.5c-.681.018-1.403.04-2.164.068a4.013 4.013 0 0 0-3.83 3.44c-.165 1.15-.245 2.545-.245 4.185 0 1.965.115 3.67.35 5.116a4.012 4.012 0 0 0 3.763 3.363l.906.046c1.205.063 1.808.095 3.607.095a.988.988 0 0 0 0-1.975c-1.758 0-2.339-.03-3.501-.092l-.915-.047a2.037 2.037 0 0 1-1.91-1.708c-.216-1.324-.325-2.924-.325-4.798 0-1.563.076-2.864.225-3.904.14-.977.96-1.713 1.945-1.747 2.444-.087 4.465-.13 6.063-.131 1.598 0 3.62.044 6.064.13.96.034 1.71.81 1.855 1.814.075.524.113 1.962.141 3.065v.002c.01.342.017.65.025.88a.987.987 0 1 0 1.974-.068c-.008-.226-.016-.523-.025-.856v-.027c-.03-1.118-.073-2.663-.16-3.276-.273-1.906-1.783-3.438-3.74-3.507-.9-.032-1.743-.058-2.531-.078l1.05-1.46a1.008 1.008 0 0 0-1.638-1.177l-1.862 2.59c-.38-.004-.744-.007-1.088-.007h-.13Zm.521 4.775h-1.32v4.631h2.222v.847h-2.618v1.078h2.618l.003.678c.36.026.714.163 1.01.407h.11v-1.085h2.694v-1.078h-2.695v-.847H16.8v-4.63h-1.276a8.59 8.59 0 0 0 .748-1.42L15.183 7.8a14.232 14.232 0 0 1-.814 1.804h-1.518l.693-.308a8.862 8.862 0 0 0-.814-1.408l-1.045.352c.297.396.572.847.825 1.364Zm-4.18 3.564.154-1.485h1.98V8.294h-3.2v.98H9.33v1.43H7.472l-.308 3.453h2.277c0 1.166-.044 1.925-.12 2.277-.078.352-.386.528-.936.528-.308 0-.616-.022-.902-.055l.297 1.067.062.005c.285.02.551.04.818.04 1.001-.067 1.562-.419 1.694-1.057.11-.638.176-1.903.176-3.795h-2.2Zm7.458.11v-.858h-1.254v.858h1.254Zm-2.376-.858v.858h-1.199v-.858h1.2Zm-1.199-.946h1.2v-.902h-1.2v.902Zm2.321 0v-.902h1.254v.902h-1.254Z" clip-rule="evenodd"></path><path fill="#00AEEC" fill-rule="evenodd" d="M22.846 14.627a1 1 0 0 0-1.412.075l-5.091 5.703-2.216-2.275-.097-.086-.008-.005a1 1 0 0 0-1.322 1.493l2.963 3.041.093.083.007.005c.407.315 1 .27 1.354-.124l5.81-6.505.08-.102.005-.008a1 1 0 0 0-.166-1.295Z" clip-rule="evenodd"></path></svg>
+      <svg v-else class="icon-show-comments" xmlns="http://www.w3.org/2000/svg" data-pointer="none" viewBox="0 0 24 24"><path fill-rule="evenodd" d="m8.085 4.891-.999-1.499a1.008 1.008 0 0 1 1.679-1.118l1.709 2.566c.54-.008 1.045-.012 1.515-.012h.13c.345 0 .707.003 1.088.007l1.862-2.59a1.008 1.008 0 0 1 1.637 1.177l-1.049 1.46c.788.02 1.631.046 2.53.078 1.958.069 3.468 1.6 3.74 3.507.088.613.13 2.158.16 3.276l.001.027c.01.333.017.63.025.856a.987.987 0 0 1-1.974.069c-.008-.23-.016-.539-.025-.881v-.002c-.028-1.103-.066-2.541-.142-3.065-.143-1.004-.895-1.78-1.854-1.813-2.444-.087-4.466-.13-6.064-.131-1.598 0-3.619.044-6.063.13a2.037 2.037 0 0 0-1.945 1.748c-.15 1.04-.225 2.341-.225 3.904 0 1.874.11 3.474.325 4.798.154.949.95 1.66 1.91 1.708a97.58 97.58 0 0 0 5.416.139.988.988 0 0 1 0 1.975c-2.196 0-3.61-.047-5.513-.141A4.012 4.012 0 0 1 2.197 17.7c-.236-1.446-.351-3.151-.351-5.116 0-1.64.08-3.035.245-4.184A4.013 4.013 0 0 1 5.92 4.96c.761-.027 1.483-.05 2.164-.069Zm4.436 4.707h-1.32v4.63h2.222v.848h-2.618v1.078h2.431a5.01 5.01 0 0 1 3.575-3.115V9.598h-1.276a8.59 8.59 0 0 0 .748-1.42l-1.089-.384a14.232 14.232 0 0 1-.814 1.804h-1.518l.693-.308a8.862 8.862 0 0 0-.814-1.408l-1.045.352c.297.396.572.847.825 1.364Zm-4.18 3.564.154-1.485h1.98V8.289h-3.2v.979h2.067v1.43H7.483l-.308 3.454h2.277c0 1.166-.044 1.925-.12 2.277-.078.352-.386.528-.936.528-.308 0-.616-.022-.902-.055l.297 1.067.062.004c.285.02.551.04.818.04 1.001-.066 1.562-.418 1.694-1.056.11-.638.176-1.903.176-3.795h-2.2Zm7.458.11v-.858h-1.254v.858H15.8Zm-2.376-.858v.858h-1.199v-.858h1.2Zm-1.199-.946h1.2v-.902h-1.2v.902Zm2.321 0v-.902H15.8v.902h-1.254Zm3.517 10.594a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-.002-1.502a2.5 2.5 0 0 1-2.217-3.657l3.326 3.398a2.49 2.49 0 0 1-1.109.259Zm2.5-2.5c0 .42-.103.815-.286 1.162l-3.328-3.401a2.5 2.5 0 0 1 3.614 2.239Z" clip-rule="evenodd"></path></svg>
+    </button>
+    <button class="settings-btn">
+      <svg class="icon-settings-comments" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill-rule="evenodd" d="m15.645 4.881 1.06-1.473a.998.998 0 1 0-1.622-1.166L13.22 4.835a110.67 110.67 0 0 0-1.1-.007h-.131c-.47 0-.975.004-1.515.012L8.783 2.3A.998.998 0 0 0 7.12 3.408l.988 1.484c-.688.019-1.418.042-2.188.069a4.013 4.013 0 0 0-3.83 3.44c-.165 1.15-.245 2.545-.245 4.185 0 1.965.115 3.67.35 5.116a4.012 4.012 0 0 0 3.763 3.363c1.903.094 3.317.141 5.513.141a.988.988 0 0 0 0-1.975 97.58 97.58 0 0 1-5.416-.139 2.037 2.037 0 0 1-1.91-1.708c-.216-1.324-.325-2.924-.325-4.798 0-1.563.076-2.864.225-3.904.14-.977.96-1.713 1.945-1.747 2.444-.087 4.465-.13 6.063-.131 1.598 0 3.62.044 6.064.13.96.034 1.71.81 1.855 1.814.075.524.113 1.962.141 3.065v.002c.005.183.01.07.014-.038.004-.096.008-.189.011-.081a.987.987 0 1 0 1.974-.069c-.004-.105-.007-.009-.011.09-.002.056-.004.112-.007.135l-.002.01a.574.574 0 0 1-.005-.091v-.027c-.03-1.118-.073-2.663-.16-3.276-.273-1.906-1.783-3.438-3.74-3.507-.905-.032-1.752-.058-2.543-.079Zm-3.113 4.703h-1.307v4.643h2.2v.04l.651-1.234c.113-.215.281-.389.482-.509v-.11h.235c.137-.049.283-.074.433-.074h1.553V9.584h-1.264a8.5 8.5 0 0 0 .741-1.405l-1.078-.381c-.24.631-.501 1.23-.806 1.786h-1.503l.686-.305c-.228-.501-.5-.959-.806-1.394l-1.034.348c.294.392.566.839.817 1.35Zm-1.7 5.502h2.16l-.564 1.068h-1.595v-1.068Zm-2.498-1.863.152-1.561h1.96V8.289H7.277v.969h2.048v1.435h-1.84l-.306 3.51h2.254c0 1.155-.043 1.906-.12 2.255-.076.348-.38.523-.925.523-.305 0-.61-.022-.893-.055l.294 1.056.061.005c.282.02.546.039.81.039.991-.065 1.547-.414 1.677-1.046.11-.631.175-1.883.175-3.757H8.334Zm5.09-.8v.85h-1.188v-.85h1.187Zm-1.188-.955h1.187v-.893h-1.187v.893Zm2.322.007v-.893h1.241v.893h-1.241Zm.528 2.757a1.26 1.26 0 0 1 1.087-.627l4.003-.009a1.26 1.26 0 0 1 1.094.63l1.721 2.982c.226.39.225.872-.001 1.263l-1.743 3a1.26 1.26 0 0 1-1.086.628l-4.003.009a1.26 1.26 0 0 1-1.094-.63l-1.722-2.982a1.26 1.26 0 0 1 .002-1.263l1.742-3Zm1.967.858a1.26 1.26 0 0 0-1.08.614l-.903 1.513a1.26 1.26 0 0 0-.002 1.289l.885 1.492c.227.384.64.62 1.086.618l2.192-.005a1.26 1.26 0 0 0 1.08-.615l.904-1.518a1.26 1.26 0 0 0 .001-1.288l-.884-1.489a1.26 1.26 0 0 0-1.086-.616l-2.193.005Zm2.517 2.76a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0Z" clip-rule="evenodd"></path></svg>
+    </button>
+
+
+    <textarea class="root-new-comment" ref="textArea" v-model="newCommentContent"
+              placeholder="在当前时间点发表评论..." :rows="rows" @input="handleInput"
+              @focus="showActions = true" @blur="onBlur"></textarea>
+    <v-btn class="pink_btn" @click="submitComment">发布</v-btn>
+
   </div>
 </template>
 
@@ -54,6 +55,10 @@ const isDragging = ref(false);
 const showThumbFlag = ref(false);
 const showHover = ref(false);
 const progressBar = ref(null);
+const newCommentContent = ref('');
+const rows = ref(1);
+const showActions = ref(false);
+const user = useUser();
 
 // Computed properties
 const maxProgress = computed(() => props.entry?.length || 0);
@@ -64,10 +69,37 @@ const currentTimeFormatted = computed(() => formatTime(currentTime.value));
 const hoverTimeFormatted = computed(() => formatTime(hoverTime.value));
 
 const showFrameComments = ref(true);
-const emit = defineEmits(['update-time', 'toggle-comments','open-comment-card']);
+const emit = defineEmits(['update-time', 'toggle-comments','open-comment-card','new-comment']);
 const toggleFrameComments = () => {
   showFrameComments.value = !showFrameComments.value;
   emit('toggle-comments', showFrameComments.value);
+};
+
+// 显示控制
+const handleInput = (event) => {
+  const lines = event.target.value.split(/\r\n|\r|\n/).length;
+  rows.value = lines > 4 ? 4 : lines;
+};
+
+const onBlur = () => {
+  setTimeout(() => {
+    showActions.value = false;
+  }, 300);
+};
+
+// 添加根评论
+const { addComment } = useAddComment(true);
+const submitComment = async () => {
+  const newComment = await addComment({
+    entryId: entryId.value,
+    content: newCommentContent.value,
+    userID: user.value.id,
+    timestamp: currentTime.value
+  });
+  if (newComment) {
+    emit('new-comment', currentTime.value);
+    newCommentContent.value = '';
+  }
 };
 
 function formatTime(timeInSeconds) {
@@ -194,45 +226,37 @@ watch(progress, (newProgress) => {
   currentTime.value = Math.floor(newProgress);// 当进度条变化更新 currentTime
 });
 
-function newframecomment() {
-  emit('open-comment-card', true);
-  emit('update-time', currentTime.value);
-}
+// 帧评论数量
+const totalframeComments = ref(0);
+const addcommentsuser = ref(0);
+const loadComments = async () => {
+  if (process.client) {
+    const response = await useFetch(`/api/frameworld/frame_comments/?entry=${entryId}`, {
+      method: 'GET',
+      key: 'comments'
+    });
+
+    if (response.error.value) {
+      console.error('Error fetching comments:', response.error.value);
+    } else {
+      const comments = response.data.value || [];
+      totalframeComments.value = comments.length;
+
+      // 新增代码: 计算不同userid的数量
+      const userIds = new Set(comments.map(comment => comment.user));
+      addcommentsuser.value = userIds.size;
+    }
+  }
+};
+onMounted(loadComments);
+
+
 </script>
 
 <style scoped>
-.controls-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-}
-
-.controls-left, .controls-center, .controls-right {
-  flex: 1;
-  display: flex;
-  align-items: center;
-}
-
-.controls-left {
-  justify-content: start;
-}
-
-.controls-center {
-  justify-content: center;
-}
-
-.controls-right {
-  justify-content: end;
-}
-
-.time-display {
-  margin-left: 8px;
-}
-
 .custom-progress-bar {
   position: relative;
-  margin: auto;
+  margin: 1rem auto auto;
   width: 95%;
   height: 5px;
   cursor: pointer;
@@ -243,12 +267,12 @@ function newframecomment() {
 .custom-progress-bar::before {
   content: "";
   position: absolute;
-  top: -8px; /* Adjust this value to control vertical expansion */
+  top: -8px;
   left: 0;
   right: 0;
-  height: 20px; /* This increases the height by adding 8px above and below the original 4px bar */
-  background-color: transparent; /* Keep it transparent or match the bar color depending on visual requirements */
-  pointer-events: auto; /* Ensure it can register mouse events */
+  height: 20px;
+  background-color: transparent;
+  pointer-events: auto;
 }
 
 .progress-bar-foreground {
@@ -289,22 +313,6 @@ function newframecomment() {
   background-color: lightgreen; /* Orange color for visibility */
   transform: translateX(-50%); /* Center the marker */
 }
-
-.btn-new-comment {
-  background-color: white !important; /* 设置背景色为白色 */
-  color: #f89898 !important; /* 设置文本颜色为粉色 */
-  box-shadow: 2px 2px 0 #f89898; /* 设置右侧和下侧的窄阴影为粉色 */
-  transition: all 0.3s ease; /* 过渡动画，让颜色变化更平滑 */
-  margin: 0 auto; /* 水平居中 */
-  font-size: 2rem; /* 设置字体大小和粗细 */
-}
-
-.btn-new-comment:hover {
-  background-color: #f89898 !important; /* 鼠标悬停时，背景变为粉色 */
-  color: snow !important; /* 鼠标悬停时，文本颜色变为更深的粉色 */
-  box-shadow: none; /* 鼠标悬停时，移除阴影 */
-}
-
 .hover-box {
   position: absolute;
   display: flex;
@@ -341,5 +349,69 @@ function newframecomment() {
   bottom: 100%;
   border-top: 5px solid rgba(0, 0, 0, 0.75);
   margin-bottom: 0.5rem;
+}
+
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding: 0 10px;
+}
+.root-new-comment {
+  padding: 8px 12px;
+  background-color: #f0f0f0 ;
+  border: 2px solid #f0f0f0;
+  border-radius: 1rem;
+  box-shadow: none;
+  transition: background-color 0.3s, border-color 0.3s;
+  resize: none; /* 禁用用户调整大小 */
+  width: 50%;
+  margin-right: 10px;
+}
+
+.root-new-comment:hover, .root-new-comment:focus {
+  background-color: #fff ;
+}
+.root-new-comment:focus {
+  border-color: #f0f0f0 !important;
+  outline: none;
+}
+
+.header-title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-right: auto; /* 推动所有后面的元素到右边 */
+  padding-left: 10px;
+}
+.settings-btn {
+  margin-right: 2rem; /* 在设置按钮和下一个元素之间添加较大间距 */
+}
+.toggle-comments-btn {
+  margin-right: 10px; /* 在显示/隐藏评论按钮和输入区域之间添加间距 */
+  margin-left: 5rem;
+}
+.icon-settings-comments, .icon-show-comments, .icon-hide-comments {
+  width: 24px; /* 示例大小，根据需要调整 */
+  height: 24px;
+  fill: currentColor; /* 使SVG图标继承文本颜色 */
+}
+
+
+.pink_btn {
+  border: 1.5px solid #f89898; /* 设置边框为粉色 */
+  background-color: white !important; /* 设置背景色为白色 */
+  color: #f89898 !important; /* 设置文本颜色为粉色 */
+  box-shadow: 2px 2px 0px #f89898; /* 设置右侧和下侧的窄阴影为粉色 */
+  transition: all 0.3s ease; /* 过渡动画，让颜色变化更平滑 */
+
+  font-size: 1.1rem;  /* 设置字体大小和粗细 */
+  font-weight: bold;
+}
+
+.pink_btn:hover {
+  background-color: #f89898 !important; /* 鼠标悬停时，背景变为粉色 */
+  color: snow !important; /* 鼠标悬停时，文本颜色变为更深的粉色 */
+  box-shadow: none ; /* 鼠标悬停时，移除阴影 */
 }
 </style>

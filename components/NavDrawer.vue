@@ -1,10 +1,9 @@
 <template>
   <!-- 侧边栏开关 -->
-  <div class="sidebar-toggle" @click="toggleDrawer" @mouseover="hover = true" @mouseleave="hover = false" :style="toggleButtonStyle">
-    <div class="icon-container">
-      <svg class="icon fade" width="32" height="32" viewBox="0 0 1024 1024" fill="#666666">
-        <path :d="drawerArrow"></path>
-      </svg>
+  <div class="sidebar-toggle" @click="toggleDrawer" @mouseover="hover = true" @mouseleave="hover = false" :class="{ 'hover': hover, 'open': drawer }" :style="toggleButtonStyle">
+    <div class="arrow">
+      <div class="line line1"></div>
+      <div class="line line2"></div>
     </div>
   </div>
 
@@ -120,23 +119,13 @@ const hover = ref(false);
 const { mdAndUp } = useDisplay()
 // 根据设备类型决定侧边栏是否为永久显示
 const drawerPermanent = computed(() => mdAndUp.value)
-// 根据drawer和hover状态，计算图标路径
-const drawerArrow = computed(() => {
-  if (drawer.value && hover.value) return "M474.496 512l338.752-338.752-90.496-90.496L293.504 512l429.248 429.248 90.496-90.496z";
-  else if (!drawer.value) return "M613.504 512L274.752 173.248l90.496-90.496L794.496 512l-429.248 429.248-90.496-90.496z";
-  else return "M355.53333337 144.6c0 3.8-0.4 7.5-0.9 11.2l0.9 0 0 714-0.9 0c0.5 3.7 0.9 7.4 0.9 11.2 0 43.1-35 78.1-78.1 78.1S199.33333337 924.1 199.33333337 881c0-3.8 0.4-7.5 0.9-11.2L199.33333337 869.8l0-714 0.9 0c-0.5-3.7-0.9-7.4-0.9-11.2 0-43.1 35-78.1 78.1-78.1S355.53333337 101.5 355.53333337 144.6z";
-});
+
 const toggleDrawer = () => {
   drawer.value = !drawer.value;
 };
 
 const toggleButtonStyle = computed(() => ({
-  left: drawer.value ? 'var(--sidebar-width, 250px)' : '0px',
-  top: '50%',
-  transform: 'translateY(-50%)',
-  position: 'fixed',
-  cursor: 'pointer',
-  zIndex: 100
+  left: drawer.value ? '250px' : '0px',
 }));
 
 /*————————————————————————用户管理操作————————————————————————*/
@@ -327,5 +316,67 @@ function selectConversation(conversationId, sourcePage) {
 .delete_dialog{
   max-width: 250px;
   margin-top: 25rem;
+}
+.sidebar-toggle {
+  position: fixed;
+  top: 52%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 100;
+}
+
+.arrow {
+  width: 30px;
+  height: 30px;
+  position: relative;
+}
+
+.line {
+  position: absolute;
+  width: .25rem;
+  height: 49%;
+  background-color: rgba(108,117,125) ;
+  border-radius: .5rem;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.line1 {
+  bottom: 50%;
+  height: 49%; /* 第一根线稍微长一点 */
+  left: 40%;
+  transform: translateX(-50%); /* 水平居中 */
+  transform-origin: center bottom;
+}
+.line2 {
+  top: 40%;
+  height: 49%; /* 第二根线稍微短一点 */
+  left: 40%;
+  transform: translateX(-50%) ; /* 水平居中并翻转 */
+  transform-origin: center top;
+}
+.hover .line {
+  background-color: #343a40 ;
+}
+
+/* Hover effect when sidebar is not open */
+.hover:not(.open) .line1 {
+  transform: rotate(-35deg);
+  width: .3rem;
+}
+
+.hover:not(.open) .line2 {
+  transform: rotate(35deg);
+  width: .3rem;
+}
+
+/* Hover effect when sidebar is open */
+.hover.open .line1 {
+  transform: rotate(35deg);
+  width: .3rem;
+}
+
+.hover.open .line2 {
+  transform: rotate(-35deg);
+  width: .3rem;
 }
 </style>

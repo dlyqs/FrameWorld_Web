@@ -1,15 +1,7 @@
 <template>
-  <!-- 侧边栏开关 -->
-  <div class="sidebar-toggle" :class="{ 'hover': hover, 'open': drawer }" :style="toggleButtonStyle"
-       @click="toggleDrawer" @mouseover="hover = true" @mouseleave="hover = false">
-    <div class="sidebar-toggle-icon">
-      <div class="line line1"></div>
-      <div class="line line2"></div>
-    </div>
-  </div>
+  <button @click="goBack()">Back</button>
 
-  <!-- 侧边栏主体 -->
-  <v-navigation-drawer class="entry-drawer" v-model="drawer" :permanent="drawerPermanent" width="240">
+  <div class="sidebar">
     <div class="entry-info" v-if="entry">
       <img :src="entry.cover_url" alt="Cover image" class="entry-cover">
       <div class="entry-title">{{ entry.title }}</div>
@@ -29,42 +21,22 @@
         </a>
       </div>
     </div>
-    
-    <!-- 设置 -->
-    <template v-slot:append>
-      <v-expansion-panels style="flex-direction: column" >
-        <v-expansion-panel rounded="rounded-pill" style="background-color: rgba(0, 0, 0, 0); border-radius: 0;">
-          <v-expansion-panel-title expand-icon="expand_less" collapse-icon="expand_more" class="setting_title">
-            <v-icon icon="settings" class="mr-4"></v-icon> {{ "设置" }}
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <div class="px-1">
-              <v-list density="compact">
-              </v-list>
-            </div>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </v-expansion-panels>
-    </template>
-  </v-navigation-drawer>
-
+  </div>
 </template>
 
 <script setup>
+const route = useRoute()
+const router = useRouter()
 
-
-/*————————————————————————侧边栏开关与显示————————————————————————*/
-import { useDisplay } from 'vuetify'
-const drawer = useDrawer()
-const hover = ref(false);
-const { mdAndUp } = useDisplay()  // 确定设备类型
-const drawerPermanent = computed(() => mdAndUp.value) // 根据设备类型决定侧边栏是否为永久显示
-
-const toggleDrawer = () => { drawer.value = !drawer.value; };
-const toggleButtonStyle = computed(() => ({ left: drawer.value ? '240px' : '0px', }));
+function goBack() {
+  router.push({ name: 'frameworld' });
+}
 
 /*————————————————————————条目信息加载————————————————————————*/
-const entryId = ref(1); // 假设当前条目ID，后期动态获取
+const entryId = ref(1);
+onMounted(() => {
+  entryId.value = route.query.entryId;
+});
 const entry = ref(null);
 
 onMounted(async () => {
@@ -90,10 +62,13 @@ const formattedTime = computed(() => {
 </script>
 
 <style scoped>
-.entry-drawer{
-  background-color: rgba(0, 0, 0, .02) ;
-  border: none;
-  height: 100vh;
+.sidebar {
+  width: 100%;
+  height: 100%;
+  background-color: #FFF;
+  padding: 20px;
+  align-items: center;
+
 }
 .entry-info {
   display: flex;
@@ -145,60 +120,4 @@ const formattedTime = computed(() => {
   font-size: 1rem;
   color: #666;
 }
-
-/* 侧边栏控制按钮样式 */
-.sidebar-toggle {
-  position: fixed;
-  top: 52%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  z-index: 100;
-}
-.sidebar-toggle-icon {
-  width: 30px;
-  height: 30px;
-  position: relative;
-}
-.line {
-  position: absolute;
-  width: .25rem;
-  height: 49%;
-  background-color: rgba(108,117,125) ;
-  border-radius: .5rem;
-  transition: transform 0.3s, background-color 0.3s;
-}
-.line1 {
-  bottom: 50%;
-  height: 49%; /* 第一根线稍微长一点 */
-  left: 35%;
-  transform: translateX(-50%); /* 水平居中 */
-  transform-origin: center bottom;
-}
-.line2 {
-  top: 40%;
-  height: 49%; /* 第二根线稍微短一点 */
-  left: 35%;
-  transform: translateX(-50%) ; /* 水平居中并翻转 */
-  transform-origin: center top;
-}
-.hover .line {
-  background-color: #343a40 ;
-}
-.hover:not(.open) .line1 {
-  transform: rotate(-35deg);
-  width: .3rem;
-}
-.hover:not(.open) .line2 {
-  transform: rotate(35deg);
-  width: .3rem;
-}
-.hover.open .line1 {
-  transform: rotate(35deg);
-  width: .3rem;
-}
-.hover.open .line2 {
-  transform: rotate(-35deg);
-  width: .3rem;
-}
 </style>
-

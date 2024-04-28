@@ -43,7 +43,7 @@
   <div class="reply-add-reply" v-if="showReplyField">
     <textarea class="reply-reply-input" v-model="newReplyCommentContent" ref="textArea" placeholder="发表评论..." 
               :rows="rows" @input="handleInput" @focus="showActions = true" @blur="onBlur"></textarea>
-    <div class="reply-actions" v-show="showActions">
+    <div class="reply-actions">
       <v-btn class="reply-reply-submit" @click="submitComment">提交</v-btn>
     </div>
   </div>
@@ -159,6 +159,7 @@ const submitComment = async () => {
     emit('reply-added', newReply);
     emit('update-total-comments');
     newReplyCommentContent.value = '';
+    showReplyField.value = !showReplyField.value;
   }
 };
 

@@ -13,7 +13,7 @@ import 'plyr/dist/plyr.css';
 const props = defineProps({
   currentTime: Number
 });
-const entryId = ref(1); // 假设当前条目ID，后期动态获取
+const entryId = useEntryId(); // 假设当前条目ID，后期动态获取
 const plyrContainer = ref(null);
 const videoSource = '/videos/Anatomy_Of_A_Fall.mp4'; // 视频路径
 let player = null;

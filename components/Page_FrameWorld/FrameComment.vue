@@ -31,7 +31,7 @@ const props = defineProps({
   uniqueTimestamps: Array,
 });
 const rows = ref(1);
-const entryId = ref(1); // 假设当前条目ID，后期动态获取
+const entryId = useEntryId();
 const totalComments = ref(0);
 const frameComments = ref([]);
 const newCommentContent = ref('');

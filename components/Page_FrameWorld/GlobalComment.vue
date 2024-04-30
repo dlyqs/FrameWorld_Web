@@ -29,11 +29,11 @@
 import RootComment from './RootComment.vue';
 
 const rows = ref(2);
-const entryId = ref(1);     // 假设当前条目ID，后期动态获取
+const entryId = useEntryId();            // 假设当前条目ID，后期动态获取
 const totalComments = ref(0);
 const commentReplies = ref({});
-const pagination = ref({ page: 1, itemsPerPage: 5 });
 const rootComments = ref({ items: [], total: 0 });
+const pagination = ref({ page: 1, itemsPerPage: 5 });
 const newCommentContent = ref('');
 const showActions = ref(false);
 const user = useUser();
@@ -67,7 +67,7 @@ const submitComment = async () => {
 // 加载评论
 const loadComments = async () => {
   if (process.client) {
-    const response = await useFetch(`/api/frameworld/global_comments/?entry=${entryId}`, {
+    const response = await useFetch(`/api/frameworld/global_comments/?entry=${entryId.value}`, {
       method: 'GET',
       key: 'comments'
     });
@@ -89,7 +89,12 @@ const loadComments = async () => {
   }
 };
 onMounted(loadComments);
-
+// 使用 watch 监听 entryId 的变化
+watch(entryId, (newId, oldId) => {
+  if (newId !== oldId) {
+    loadComments();
+  }
+});
 // 使用watchEffect来确保变化重新加载评论
 watchEffect(() => {
   loadComments();

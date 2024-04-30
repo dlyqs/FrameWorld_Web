@@ -59,7 +59,7 @@ const props = defineProps({
   currentTimestamp: Number,
 });
 const rows = ref(2);                    // 文本域的行数
-const entryId = ref(1);                 // 假设当前条目ID，后期动态获取
+const entryId = useEntryId();                 // 假设当前条目ID，后期动态获取
 const snackbarText = ref('');
 const newRootCommentContent = ref('');  // 绑定的消息文本
 const snackbar = ref(false);

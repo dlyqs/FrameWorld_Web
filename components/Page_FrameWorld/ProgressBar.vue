@@ -40,7 +40,7 @@
       </button>
     </div>
     <textarea class="new-comment-input" v-model="newCommentContent" ref="textArea" placeholder="在当前时间点发表评论..." 
-              :rows="rows" @input="handleInput" @focus="showActions = true" @blur="onBlur"></textarea>
+              :rows="rows" @input="handleInput" @blur="onBlur"></textarea>
     <v-btn class="new-comment-submit" @click="submitComment">Send</v-btn>
   </div>
 </template>
@@ -52,7 +52,7 @@ const props = defineProps({
 });
 
 const rows = ref(1);
-const entryId = ref(1);       // 假设当前条目ID，后期动态获取
+const entryId = useEntryId();       // 假设当前条目ID，后期动态获取
 const progress = ref(0);
 const hoverTime = ref(0);
 const snapRange = ref(30);    // 设置吸附范围（秒）
@@ -226,15 +226,17 @@ const submitComment = async () => {
   if (newComment) {
     emit('new-comment', currentTime.value);
     newCommentContent.value = '';
+    total_frameComment.value += 1;
   }
 };
 
 /*————————————————————————加载帧评论————————————————————————*/
 // 加载帧评论数量和不同用户数量
 const loadComments = async () => {
-  if (process.client) {
+
     try {
-      const response = await fetch(`/api/frameworld/frame_comments/?entry=${entryId}`, {
+      console.log('progress entryid:', entryId.value);
+      const response = await fetch(`/api/frameworld/frame_comments/?entry=${entryId.value}`, {
         method: 'GET'
       });
       if (!response.ok) {
@@ -247,12 +249,21 @@ const loadComments = async () => {
       // 新增代码: 计算不同userid的数量
       const userIds = new Set(comments.map(comment => comment.user));
       total_frameComment_user.value = userIds.size; // 更新不同用户ID的数量
+      console.log('progress total:', total_frameComment.value);
+      console.log('progress total_user:', total_frameComment_user.value);
     } catch (error) {
       console.error('Error fetching comments:', error);
     }
-  }
+
 };
 onMounted(loadComments);
+
+// 使用 watch 监听 entryId 的变化
+watch(entryId, (newId, oldId) => {
+  if (newId !== oldId) {
+    loadComments();
+  }
+});
 
 // 计算帧评论标记位置
 function calculateMarkerPosition(timestamp) {

@@ -64,7 +64,7 @@ const toggleDrawer = () => { drawer.value = !drawer.value; };
 const toggleButtonStyle = computed(() => ({ left: drawer.value ? '240px' : '0px', }));
 
 /*————————————————————————条目信息加载————————————————————————*/
-const entryId = ref(1); // 假设当前条目ID，后期动态获取
+const entryId = useEntryId(); // 假设当前条目ID，后期动态获取
 const entry = ref(null);
 
 onMounted(async () => {

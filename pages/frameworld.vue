@@ -7,12 +7,12 @@
           <component :is="currentSidebarComponent" :entry-id="entryId" />
           <div class="resizer" @mousedown.prevent="startResize"></div>
         </div>
-        <!-- 侧边栏开关,待改进 -->
-        <div class="sidebar-toggle" :class="{ 'hover': hover, 'open': drawer }"
-             @click="toggleDrawer" @mouseover="hover = true" @mouseleave="hover = false">
-          <div class="line line1"></div>
-          <div class="line line2"></div>
-        </div>
+      </div>
+      <!-- 侧边栏开关,待改进 -->
+      <div class="sidebar-toggle" :class="{ 'hover': hover, 'open': drawer }"
+           @click="toggleDrawer" @mouseover="hover = true" @mouseleave="hover = false">
+        <div class="line line1"></div>
+        <div class="line line2"></div>
       </div>
       <div class="main-content">
         <Main :entry="entryData"/>
@@ -31,11 +31,7 @@ const currentSidebarComponent = computed(() => {
   return route.query.entryId ? EntryDetail : SidebarHome;
 });
 
-onMounted(() => {
-  if(route.query.entryId){
-    entryId.value = route.query.entryId;
-  }
-});
+
 
 // 布局设置
 definePageMeta({
@@ -82,21 +78,18 @@ const stopResize = () => {
 }
 
 /*————————————————————————侧边栏开关与显示————————————————————————*/
-const drawer = useDrawer()
+const drawer = ref(true);
 const hover = ref(false);
 
 const toggleDrawer = () => { drawer.value = !drawer.value; };
 
 /*————————————————————————frameworld全局信息加载————————————————————————*/
 const user = useUser()
-const entryId = ref(1); // 假设当前条目ID，后期动态获取
+const entryId = useEntryId() // 假设当前条目ID，后期动态获取
 const entryData = ref(null);
 const { userInfo, error, fetchUserInfo } = useUserInfo();
 
-console.log('entryData:', entryData);
-console.log('userInfo:', userInfo);
-
-onMounted(async () => {
+const loadData = async () => {
   try {
     const response = await fetch(`/api/frameworld/entries/${entryId.value}/`);
     if (response.ok) {
@@ -109,7 +102,18 @@ onMounted(async () => {
     console.error('Error fetching entry data:', error);
   }
   await fetchUserInfo(user.value.id);
+};
+
+// 初始挂载时加载数据
+onMounted(loadData);
+
+// 监听 entryId 的变化，变化时重新加载数据
+watch(entryId, (newId, oldId) => {
+  if (newId !== oldId) {
+    loadData();
+  }
 });
+
 </script>
 
 <style scoped>
@@ -132,23 +136,19 @@ onMounted(async () => {
   width: auto; /* 侧边栏宽度 */
   flex-shrink: 0;
   transition: width 0.3s;
-
   overflow-y: auto; /* 如果内容超出，允许垂直滚动 */
   overflow-x: hidden;
   position: relative;
   display: flex;
 
-  align-items: center;
 }
 .sidebar-content{
   overflow-y: hidden; /* 如果内容超出，允许垂直滚动 */
   overflow-x: hidden;
-  width: 100%;
-
+  width: 240px;
+  min-width: 240px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-
 }
 .main-content {
   flex-grow: 1;
@@ -198,7 +198,7 @@ Header {
 /* 侧边栏控制按钮样式 */
 .sidebar-toggle {
   cursor: pointer;
-  transform: translateY(-50%);
+  top:50%;
   width: 25px;
   height: 30px;
   position: relative;

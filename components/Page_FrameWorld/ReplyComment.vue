@@ -57,7 +57,7 @@ const props = defineProps({
   reply: Object
 });
 const rows = ref(2);
-const entryId = ref(1);                 // 假设当前条目ID，后期动态获取
+const entryId = useEntryId();                 // 假设当前条目ID，后期动态获取
 const snackbarText = ref('');
 const newReplyCommentContent = ref('');
 const snackbar = ref(false);

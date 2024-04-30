@@ -31,7 +31,7 @@ import Footer from "./Footer.vue";
 const props = defineProps({
   entry: Object
 });
-const entryId = ref(1); // 假设当前条目ID，后期动态获取
+const entryId = useEntryId(); // 假设当前条目ID，后期动态获取
 const currentTime = ref(0);
 const uniqueTimestamps = ref([]); // 进度条评论标记点
 const showFrameComments = ref(true); // 控制帧评论显示与隐藏
@@ -58,9 +58,11 @@ const isAtMarker = computed(() => {
 });
 
 // 加载当前条目帧评论, 获取标记点列表
-onMounted(async () => {
+// 定义一个方法来加载数据
+const loadData = async () => {
   try {
-    const response = await fetch(`/api/frameworld/frame_comments/${entryId.value}/comments_for_entry`);
+    const url = `/api/frameworld/frame_comments/${entryId.value}/comments_for_entry`;
+    const response = await fetch(url);
     if (response.ok) {
       const data = await response.json();
       const timestamps = new Set(data.map(comment => Math.floor(comment.timestamp)));
@@ -70,6 +72,16 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Error fetching comments:', error);
+  }
+};
+
+// 初始挂载时加载数据
+onMounted(loadData);
+
+// 监听 entryId 的变化，变化时重新加载数据
+watch(entryId, (newId, oldId) => {
+  if (newId !== oldId) {
+    loadData();
   }
 });
 
